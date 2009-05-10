@@ -52,7 +52,7 @@ class Taplod_Loader {
 	public static function autoload($class) {
 		try {
 			@self::autoload($class);
-			return $class
+			return $class;
 		} catch(Taplod_Exception $e) {
 			return false;
 		}
@@ -67,7 +67,7 @@ class Taplod_Loader {
 	 * @throws Taplod_Exception if spl_autoload() is not found
 	 */
 	public static function registerAutoload($class='Taplod_Loader', $enabled = true) {
-		if (!function_exists('spl_autload')) {
+		if (!function_exists('spl_autoload')) {
 			require_once 'Taplod/Exception.php';
 			throw new Taplod_Exception('spl_autload doesn\'t exists in this php installation');
 		}
@@ -75,9 +75,9 @@ class Taplod_Loader {
 		self::loadClass($class);
 		
 		if ($enabled == true) {
-			spl_autload_register(array($class, 'autoload'));
+			spl_autoload_register(array($class, 'autoload'));
 		} else {
-			spl_autload_unregister(array($class, 'autoload'));
+			spl_autoload_unregister(array($class, 'autoload'));
 		}
 	}
 }
