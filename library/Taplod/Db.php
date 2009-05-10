@@ -6,6 +6,8 @@
  * @license http://opensource.org/licenses/mit-license.php MIT license
  */
 
+require_once 'Taplod/Loader.php';
+
 /**
  * @category Taplod
  * @package Taplod_Db
