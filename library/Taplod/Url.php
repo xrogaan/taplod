@@ -20,26 +20,35 @@ class Taplod_Url {
 	protected $_page;
 	protected $_category = false;
 	protected $_arguments = array();
+	protected $_applicationPath = '';
 	
 	protected static $_instance;
 
 	/**
-	 * 
+	 * Constructeur
+	 *
+	 * défini les prérequis.
 	 */
-	protected function __construct($baseUrl=false, $baseUri=false) {
-		if (!$baseUrl) {
+	protected function __construct($config) {
+		if (!array_key_exists($config,'application_path')) {
+			require_once 'Taplod/Url/Exception.php';
+			throw new Taplod_Taplod_Url_Exception("Configuration array must have a 'application_path' key.");
+		}
+		
+		$this->_applicationPath = $config['application_path'];
+		
+		if (!array_key_exists($config,'baseUrl')) {
 			if (isset($_SERVER['HTTP_HOST'])) {
 				$baseUrl = 'http://' . $_SERVER['HTTP_HOST'] . '/';
 			} else {
 				require_once 'Taplod/Url/Exception.php';
-				throw new Taplod_Taplod_Url_Exception('baseUrl don\'t send');
-				die;
+				throw new Taplod_Taplod_Url_Exception("Configuration array must have a 'baseUrl' key.");
 			}
 		}
-		$this->_baseUrl = $baseUrl;
+		$this->_baseUrl = $config['baseUrl'];
 
-		if ($baseUri) {
-			$this->_setBaseUri($baseUri);
+		if (array_key_exists($config['baseUri'])) {
+			$this->_setBaseUri($config['baseUri']);
 		}
 		
 		if (isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST'] != str_replace(array('http://','/'),'',$this->_baseUrl)) {
@@ -65,7 +74,12 @@ class Taplod_Url {
 	public function init() {}
 	
 	/**
-	 * 
+	 * Initialise toute les données nécessaire au bon déroulement des opérations
+	 *
+	 * La fonction va récolter le nom de la page et le niveau a laquelle est cituée
+	 * dans l'url ainsi que les différentes catégories et, si existant, les
+	 * différents arguments passé dans l'url.
+	 *
 	 * @throws Taplod_Url_Exception
 	 */
 	private function _init() {
@@ -87,6 +101,7 @@ class Taplod_Url {
 				} else {
 					if ($i == $_pagepos) {
 						if ($_data == 'bootstrap') {
+							require_once 'Taplod/Url/Exception.php'
 							throw new Taplod_Url_Exception('bootstrap file can\'t be used as page.');
 							die;
 						}
@@ -112,41 +127,45 @@ class Taplod_Url {
 	}
 
 	/**
-	 * 
+	 * Défini l'uri de base
 	 */
 	private function _setBaseUri($base) {
 		$this->_baseUri = $base;
 	}
 	
 	/**
-	 * 
+	 * vérifie si la page courante existe.
 	 */
 	protected function _currentPageExists() {
 		return $this->pageExists($this->_page,$this->_category);
 	}
 	
 	/**
-	 * 
+	 * retourne la l'uri de base, sans page.
 	 */
 	public function getBaseUri() {
 		return $this->_baseUri;
 	}
 	
 	/**
-	 * 
+	 * Retoure l'uri de base pour une page.
+	 *
+	 * Déprécié depuis que buildUri existe.
 	 */
 	public function getUriForPage($page) {
 		return $this->getBaseUri() . $page;
 	}
 	
 	/**
-	 * 
+	 * vérifie si une page existe dans le path application
+	 *
+	 * @return boolean
 	 */
 	public function pageExists($page,$category=false) {
 		if ($category) {
-			return file_exists(APPLICATION_PATH . $category . $page . '.php');
+			return file_exists($this->_applicationPath . $category . $page . '.php');
 		} else {
-			return file_exists(APPLICATION_PATH . '/' . $page . '.php');
+			return file_exists($this->_applicationPath . '/' . $page . '.php');
 		}
 	}
 	
@@ -158,13 +177,13 @@ class Taplod_Url {
 	 */
 	public function getPagePath() {
 		if (!$this->_currentPageExists()) {
-			throw new Taplod_Url_Exception('This page (' . APPLICATION_PATH . $this->_category . '/' . $this->_page . ') doesn\'t exists.');
+			throw new Taplod_Url_Exception('This page (' . $this->_applicationPath . $this->_category . '/' . $this->_page . ') doesn\'t exists.');
 		}
 	
 		if ($this->_category) {
-			return APPLICATION_PATH . $this->_category . '/' . $this->_page;
+			return $this->_applicationPath . $this->_category . '/' . $this->_page;
 		} else {
-			return APPLICATION_PATH . $this->_page;
+			return $this->_applicationPath . $this->_page;
 		}
 	}
 	
@@ -192,12 +211,18 @@ class Taplod_Url {
 	 * @return void
 	 */
 	public function redirectError(array $page, $message) {
-		addMessageInSession($message);
+		//addMessageInSession($message);
 		$this->redirect($page,'redirect_message_box');
 	}
 	
 	/**
 	 * Construit une url selon les arguments passé a la fonction
+	 *
+	 * $page sera le fichier ciblé.
+	 * $arguments doit être un tableau key=>value qui sera transformé en chaine
+	 *     et passé dans l'uri en tant que key:value-key:value
+	 * $category est soit une chaine, soit un array, il représente les différents
+	 *     niveau pour arriver a la page.
 	 *
 	 * @param string $page La page vers laquelle le lien pointera
 	 * @param array|boolean $arguments Les arguments qui seront passés a la page
@@ -208,6 +233,7 @@ class Taplod_Url {
 	public function buildUri($page, $arguments=false, $category=false) {
 		if ($arguments !== false) {
 			if (!is_array($arguments)) {
+				require_once 'Taplod/Url/Exception.php';
 				throw new Taplod_Url_Exception ('Argument 2 passed to ' . __CLASS__ . '::' . __FUNCTION__ . ' must be a string, ' . gettype($arguments) . ' given.');
 			}
 			
