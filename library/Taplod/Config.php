@@ -81,7 +81,8 @@ class Taplod_Config implements Countable, Iterator {
 			}
 			$this->_count = count($this->_data);
 		} else {
-			throw new Exception('Config is read only');
+			require_once 'Taplod/Exception.php';
+			throw new Taplod_Exception('Config is read only');
 		}
 	}
 	
@@ -97,8 +98,10 @@ class Taplod_Config implements Countable, Iterator {
 	protected function __unset($name) {
 		if ($this->_allow_modifications) {
 			unset($this->_data[$name]);
+			$this->_count = count($this->_data);
 		} else {
-			throw new Exception('Config is read only');
+			require_once 'Taplod/Exception.php';
+			throw new Taplod_Exception('Config is read only');
 		}
 	}
 	
@@ -174,6 +177,22 @@ class Taplod_Config implements Countable, Iterator {
 			}
 		}
 		return $this;
+	}
+	
+	/**
+	 * Return a array of stored data
+	 */
+	public function toArray() {
+		$array = array();
+		
+		foreach ($this->_data as $key => $value) {
+			if ($value instanceof Taplod_Config) {
+				$array[$key] = $value->toArray();
+			} else {
+				$array[$key] = $value;
+			}
+		}
+		return $array;
 	}
 }
 
