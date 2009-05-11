@@ -17,7 +17,7 @@ class Taplod_ObjectCache {
 
     private static $_objects = array();
 
-    private static function __construct() {
+    private function __construct() {
     }
 
     public function getInstance() {
