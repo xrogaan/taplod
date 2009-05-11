@@ -36,6 +36,10 @@ class Taplod_Db {
 		}
 		
 		$adapterName = $adapterNamespace . '_' . $adapter;
+		
+		Taplod_Loader::loadClass($adapterName);
+		
+		$dbAdapter = new $adapterName($config);
 	}
 
 }
