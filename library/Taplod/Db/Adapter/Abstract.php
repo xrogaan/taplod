@@ -10,6 +10,7 @@ abstract class Taplod_Db_Adapter_Abstract {
 	protected $_connection = null;
 	protected $_config = array();
 	protected $_fetchMode;
+	protected $_pdoType;
 	
 	
 	/**
