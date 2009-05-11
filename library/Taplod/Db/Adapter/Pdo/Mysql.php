@@ -38,6 +38,4 @@ class Taplod_Db_Adapter_Pdo_Mysql extends Taplod_Db_Adapter {
 	public function closeConnection() {
 		$this->_connection = null;
 	}
-	
-	
 }

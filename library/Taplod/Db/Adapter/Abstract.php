@@ -66,8 +66,22 @@ abstract class Taplod_Db_Adapter_Abstract {
 		}
 		$args = func_get_args();
 		$sql = call_user_func_array(array('self','_autoQuote'), $args);
-		$r = $this->query($sql);
+		$r = parent::query($sql);
 		return $r;
+	}
+	
+	/**
+	 * See PDO::exec
+	 */
+	public function exec($sql) {
+		return $this->getConnection()->exec($sql);
+	}
+	
+	/**
+	 *  Fetches the next row from a result set 
+	 */
+	public function fetch($sql) {
+		return $this->getConnection()->fetch($sql,$this->_fetchMode);
 	}
 	
 	/**
@@ -87,7 +101,7 @@ abstract class Taplod_Db_Adapter_Abstract {
 		}
 		
 		$key = array_shift($args);
-		$query = call_user_func_array(array('self', 'squery'), $args);
+		$query = call_user_func_array(array('self', 'query'), $args);
 		
 		$result = array();
 		while ($row = $query->fetch(PDO::FETCH_ASSOC)) {
@@ -115,7 +129,7 @@ abstract class Taplod_Db_Adapter_Abstract {
 		}
 		
 		$key = array_shift($args);
-		$query = call_user_func_array(array('self', 'squery'), $args);
+		$query = call_user_func_array(array('self', 'query'), $args);
 		
 		$result = array();
 		while ($row = $query->fetch(PDO::FETCH_ASSOC)) {
@@ -144,7 +158,7 @@ abstract class Taplod_Db_Adapter_Abstract {
 		
 		$key1 = array_shift($args);
 		$key2 = array_shift($args);
-		$query = call_user_func_array(array('self', 'squery'), $args);
+		$query = call_user_func_array(array('self', 'query'), $args);
 		
 		$result = array();
 		while ($row = $query->fetch(PDO::FETCH_ASSOC)) {
@@ -167,7 +181,7 @@ abstract class Taplod_Db_Adapter_Abstract {
 	 */
 	public function fetchPairs() {
 		$args = func_get_args();
-		$query = call_user_func_array(array('self', 'squery'), $args);
+		$query = call_user_func_array(array('self', 'query'), $args);
 		
 		$result = array();
 		while( $row = $query->fetch(PDO::FETCH_NUM) ) {
@@ -193,7 +207,7 @@ abstract class Taplod_Db_Adapter_Abstract {
 		
 		$sql = 'INSERT INTO ' . $table . '(' . implode(',', $columns) . ') VALUES (' . implode(',', $values) . ')';
 		$sql = vsprintf($sql, array_map(array('self', '_autoQuote')), array_values($data));
-		return self::squery($sql);
+		return self::query($sql);
 	}
 	
 	/**
@@ -236,6 +250,10 @@ abstract class Taplod_Db_Adapter_Abstract {
 		}
 	}
 	
+	/**
+	 * Get initialized instance of an adapter or create one.
+	 * @return Taplod_Db_Adapter_Abstract
+	 */
 	public function getConnection() {
 		$this->_connect();
 		return $this->_connection;
