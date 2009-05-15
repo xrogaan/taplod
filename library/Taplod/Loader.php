@@ -6,6 +6,8 @@
  * @license http://opensource.org/licenses/mit-license.php MIT license
  */
 
+require_once 'Taplod/Exception.php';
+
 /**
  * @category Taplod
  * @package Taplod_Loader
@@ -54,7 +56,7 @@ class Taplod_Loader {
 	 */
 	public static function autoload($class) {
 		try {
-			@self::autoload($class);
+			@self::loadClass($class);
 			return $class;
 		} catch(Taplod_Exception $e) {
 			return false;
