@@ -220,13 +220,14 @@ class Taplod_Templates {
 	public function getHelper($name) {
 		$name = strtolower($name);
 	
-		$prefix      = 'Template_Helper';
-		$prefix_path = 'Template/Helper/';
+		$prefix      = 'Taplod_Template_Helper';
+		$prefix_path = 'Taplod/Template/Helper/';
 		
 		if (array_key_exists($name,$this->_helpers)) {
 			return $this->_helpers[$name];
 		} else {
 			$name = ucfirst($name);
+			Taplod_Loader::loadClass($prefix . $name);
 			$this->_helpers[$name] = new $name();
 		}
 	}

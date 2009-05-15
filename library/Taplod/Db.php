@@ -40,6 +40,13 @@ class Taplod_Db {
 		Taplod_Loader::loadClass($adapterName);
 		
 		$dbAdapter = new $adapterName($config);
+		
+		if (! $dbAdapter instanceof Taplod_Db_Adapter_Abstract) {
+			require_once 'Db/Exception.php';
+			throw new Taplod_Db_Exception ("Adapter Class '$adapterName' does not extend Taplod_Db_Adapter_Abstract");
+		}
+		
+		return $dbAdapter;
 	}
 
 }

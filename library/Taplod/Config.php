@@ -195,5 +195,3 @@ class Taplod_Config implements Countable, Iterator {
 		return $array;
 	}
 }
-
-?>

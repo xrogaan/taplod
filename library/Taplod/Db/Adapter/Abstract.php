@@ -12,6 +12,9 @@ abstract class Taplod_Db_Adapter_Abstract {
 	protected $_fetchMode;
 	protected $_pdoType;
 	
+	protected $_mark_query_time;
+	protected $_queries_log;
+	
 	
 	/**
 	 * $config est une liste de clef/valeurs nécessaire a la connexion + paramètrage
@@ -24,7 +27,7 @@ abstract class Taplod_Db_Adapter_Abstract {
 	 * host      => (défaut: localhost)
 	 */
 	public function __construct($config) {
-		if (!is_array($config) {
+		if (!is_array($config)) {
 			require_once 'Taplod/Db/Adapter/Exception.php';
 			throw new Taplod_Db_Adapter_Exception('Argument 1 passed to ' . __CLASS__ . '::' . __FUNCTION__ . ' must be an array, ' . gettype($config) . ' given.');
 		}
@@ -44,7 +47,58 @@ abstract class Taplod_Db_Adapter_Abstract {
 			throw new Taplod_Db_Adapter_Exception("Configuration array must have a 'password' key.");
 		}
 		
+		if (!array_key_exists('host', $config)) {
+			$config['host'] = 'localhost';
+		}
+		
 		$this->_config = array_merge($this->_config, $config);
+	}
+	
+	
+	/**
+	 * Formate la requête avec les arguments fournis et quote les valeurs de manière intelligente.
+	 *
+	 * Les %s dans la requête sql sont remplacés par les arguments qui sont transformés en chaînes mysql.
+	 * self::_autoQuote( sql, arg1, arg2... )
+	 *
+	 * Exemple :
+	 * <code>
+	 * <?php
+	 * // give: UPDATE fuck SET a='1' WHERE b='popo'
+	 * echo self::_autoQuote( 'UPDATE hop SET a=%s WHERE b=%s', 1,'popo' );
+	 * ?>
+	 * </code>
+	 *
+	 * @return string
+	 */
+	private function _autoQuote() {
+		$args = func_get_args();
+		list($_, $sql) = each($args);
+		
+		if (count($args) == 1) return $sql;
+		
+		$params = array();
+		while ( list( $_, $val ) = each($args) ) {
+			switch(gettype($val)) {
+				case 'integer':
+					$type = PDO::PARAM_INT;
+					break;
+				case 'double':
+					$type = PDO::PARAM_INT;
+					break;
+				case 'boolean':
+					$type = PDO::PARAM_BOOL;
+					break;
+				case NULL:
+					$type = PDO::PARAM_NULL;
+					break;
+				case 'string':
+				default:
+					$type = PDO::PARAM_STR;
+			}
+			$params[] = $this->_pdo->quote($val, $type);
+		}
+		return vsprintf($sql, $params);
 	}
 	
 	/**
@@ -65,8 +119,14 @@ abstract class Taplod_Db_Adapter_Abstract {
 			$this->getConnection();
 		}
 		$args = func_get_args();
+		
+		$t = microtime(true);
 		$sql = call_user_func_array(array('self','_autoQuote'), $args);
-		$r = parent::query($sql);
+		$r = $this->getConnection()->query($sql);
+		$this->_mark_query_time = microtime(true);
+		
+		$this->_queries_log[] = array($this->_mark_query_time-$t, 'query', $args);
+		
 		return $r;
 	}
 	
@@ -74,7 +134,13 @@ abstract class Taplod_Db_Adapter_Abstract {
 	 * See PDO::exec
 	 */
 	public function exec($sql) {
-		return $this->getConnection()->exec($sql);
+		$t = microtime(true);
+		$r = $this->getConnection()->exec($sql);
+		$this->_mark_query_time = microtime(true);
+		
+		$this->_queries_log[] = array($this->_mark_query_time-$t, 'exec', $args);
+		
+		return $r;
 	}
 	
 	/**
@@ -211,7 +277,7 @@ abstract class Taplod_Db_Adapter_Abstract {
 	}
 	
 	/**
-	 *
+	 * Build and exec a update query
 	 */
 	public function update($table,array $data,$where) {
 		if (!is_string($where)) {
@@ -251,6 +317,26 @@ abstract class Taplod_Db_Adapter_Abstract {
 	}
 	
 	/**
+	 * Add an item into the log
+	 */
+	protected function _markQueriesLog($pdostatement=false) {
+		if ($pdostatement) {
+			$this->_queries_log['PDOStatement'][count($this->_queries_log['PDOStatement'])-1][0] += microtime(true)-$this->_mark_query_time;
+		} else {
+			$this->_queries_log[count($this->_queries_log)-2][0] += microtime(true)-$this->_mark_query_time;
+		}
+	}
+	
+	/**
+	 * Used to return the logs
+	 *
+	 * @return array
+	 */
+	public function getQueriesLog() {
+		return $this->_queries_log;
+	}
+	
+	/**
 	 * Get initialized instance of an adapter or create one.
 	 * @return Taplod_Db_Adapter_Abstract
 	 */
@@ -279,4 +365,18 @@ abstract class Taplod_Db_Adapter_Abstract {
      * @return void
      */
     abstract public function closeConnection();
+	
+	public function __call($name,$args) {
+		$t = microtime(true);
+		$r = call_user_func_array(array($this->_connection,$name),$args);
+
+		/*$this->_mark_query_time = microtime(true);
+		$this->_queries_log[] = array($this->_mark_query_time-$t, $name, $args);*/
+		
+		if ($r instanceof PDOStatement) {
+			//return new PDOStatement_Timer($r,$this);
+		}
+		
+		return $r;
+	}
 }

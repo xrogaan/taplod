@@ -21,13 +21,13 @@ class Taplod_Loader {
 			return false;
 		}
 		
-		$file = str_replace('_',DIRECTORY_SEPARATOR,$class) . 'php';
+		$file = str_replace('_',DIRECTORY_SEPARATOR,$class) . '.php';
 		
 		self::loadFile($file);
 		
-		if (!class_exists($class, false) || !interface_exists($class, false)) {
+		if (!class_exists($class, false) && !interface_exists($class, false)) {
 			require_once 'Taplod/Exception.php';
-			throw new Taplod_Exception("Class \"$class\" was not found in the source file");
+			throw new Taplod_Exception("Class \"$class\" was not found in the source file \"$file\".");
 		}
 		
 	}
@@ -37,12 +37,15 @@ class Taplod_Loader {
 	
 		$path = explode(PATH_SEPARATOR,ini_get('include_path'));
 		foreach ($path as $dir) {
-			$file = $path.DIRECTORY_SEPARATOR.$filename;
+			$file = $dir.DIRECTORY_SEPARATOR.$filename;
 			if (file_exists($file)) {
 				include_once $file;
 				return;
 			}
 		}
+		
+		require_once 'Taplod/Exception.php';
+		throw new Taplod_Exception("File '$file' was not found.");
 		
 	}
 	
