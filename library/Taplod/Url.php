@@ -55,7 +55,7 @@ class Taplod_Url {
 		}
 		
 		if (isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST'] != str_replace(array('http://','/'),'',$this->_baseUrl)) {
-			header('Location: ' . $this->_baseUrl . $this->getBaseUri()); 
+			self::redirect(false); 
 		}
 		
 		self::_init();
@@ -197,10 +197,14 @@ class Taplod_Url {
 	 * @param string|boolean $anchor
 	 * @return void
 	 */
-	public function redirect(array $page, $anchor=false) {
+	public function redirect($page, $anchor=false) {
 		if (!headers_sent($filename, $linenum)) {
-			$toPage = call_user_func_array(array('self','buildUri'),$page);
-			$toPage.= $anchor ? "#$anchor" : '';
+			if (is_array($page)) {
+				$toPage = call_user_func_array(array('self','buildUri'),$page);
+				$toPage.= $anchor ? "#$anchor" : '';
+			} else {
+				$toPage = '';
+			}
 			header('Location: '.$this->_baseUrl. $this->getBaseUri() . $toPage);
 			die;
 		} else {
