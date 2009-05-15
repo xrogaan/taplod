@@ -30,14 +30,14 @@ class Taplod_Url {
 	 * défini les prérequis.
 	 */
 	protected function __construct($config) {
-		if (!array_key_exists($config,'application_path')) {
+		if (!array_key_exists('application_path',$config)) {
 			require_once 'Taplod/Url/Exception.php';
 			throw new Taplod_Taplod_Url_Exception("Configuration array must have a 'application_path' key.");
 		}
 		
 		$this->_applicationPath = $config['application_path'];
 		
-		if (!array_key_exists($config,'baseUrl')) {
+		if (!array_key_exists('baseUrl',$config)) {
 			if (isset($_SERVER['HTTP_HOST'])) {
 				$baseUrl = 'http://' . $_SERVER['HTTP_HOST'] . '/';
 			} else {
@@ -47,12 +47,15 @@ class Taplod_Url {
 		}
 		$this->_baseUrl = $config['baseUrl'];
 
-		if (array_key_exists($config['baseUri'])) {
+		if (array_key_exists('baseUri',$config)) {
+			if (substr($config['baseUri'],0,1) != '/') {
+				$config['baseUri'] = '/' . $config['baseUri'];
+			}
 			$this->_setBaseUri($config['baseUri']);
 		}
 		
 		if (isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST'] != str_replace(array('http://','/'),'',$this->_baseUrl)) {
-			header('Location: ' . $this->_baseUrl . '/' . $this->getBaseUri()); 
+			header('Location: ' . $this->_baseUrl . $this->getBaseUri()); 
 		}
 		
 		self::_init();
@@ -63,9 +66,9 @@ class Taplod_Url {
      *
      * @return Url
      */
-	public static function getInstance($baseUrl=false, $baseUri=false) {
+	public static function getInstance($config=array()) {
         if (null === self::$_instance) {
-            self::$_instance = new self($baseUrl, $baseUri);
+            self::$_instance = new self($config);
         }
 
         return self::$_instance;
@@ -101,9 +104,8 @@ class Taplod_Url {
 				} else {
 					if ($i == $_pagepos) {
 						if ($_data == 'bootstrap') {
-							require_once 'Taplod/Url/Exception.php'
+							require_once 'Taplod/Url/Exception.php';
 							throw new Taplod_Url_Exception('bootstrap file can\'t be used as page.');
-							die;
 						}
 						$this->_page = '/' . $_data;
 					} else {
