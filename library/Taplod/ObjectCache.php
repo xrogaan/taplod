@@ -22,7 +22,7 @@ class Taplod_ObjectCache {
 
     public function getInstance() {
         if (self::$_instance == null) {
-            self::$_instance = new Taplod_ObjectCache();
+            self::$_instance = new self();
         } else {
             return self::$_instance;
         }
@@ -30,7 +30,7 @@ class Taplod_ObjectCache {
 
     public static function set($tag,$className) {
         $cache = self::getInstance();
-        if (!in_array($cache->_objects,$tag)) {
+        if (!array_key_exists($tag,$cache->_objects)) {
             $cache->_objects[$tag] = $className;
             return true;
         }
@@ -39,23 +39,31 @@ class Taplod_ObjectCache {
 
     public static function get($tag) {
         $cache = self::getInstance();
-        if (in_array($cache->_objects,$tag)) {
-            return $cache->_objects[$tag];
+        if (!array_key_exists($tag,$cache->_objects)) {
+            require_once 'Taplod/Exception.php';
+			throw new Taplod_Exception('No entry registered for '. $tag);
         }
-        return null;
+        return $cache->_objects[$tag];
     }
+	
+	public static function isCached($tag) {
+		$cache = self::getInstance();
+		return array_key_exists($tag,$cache->_objects)
+	}
 
     public function __get($tag) {
-        return self::get($tag);
+		$cache = self::getInstance();
+        return $cache->get($tag);
     }
 
     public function __set($tag,$value) {
-        return self::set($tag,$value);
+		$cache = self::getInstance();
+        return $cache->set($tag,$value);
     }
 	
 	public function __unset($tag) {
 		$cache = self::getInstance();
-		if (in_array($cache->_objects,$tag)) {
+		if (array_key_exists($tag,$cache->_objects)) {
 			unset($cache->_objects[$tag]);
 		}
 	}
@@ -64,6 +72,6 @@ class Taplod_ObjectCache {
         if (self::$_instance == null) {
             return false;
         }
-        return isset(self::$_objects[$tag]);
+        return array_key_exists($tag,$cache->_objects);
     }
 }
