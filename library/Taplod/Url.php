@@ -198,10 +198,15 @@ class Taplod_Url {
 	 * @return void
 	 */
 	public function redirect(array $page, $anchor=false) {
-		$toPage = call_user_func_array(array('self','buildUri'),$page);
-		$toPage.= $anchor ? "#$anchor" : '';
-		header('Location: '.$this->_baseUrl. $this->getBaseUri() . $toPage);
-		die;
+		if (!headers_sent($filename, $linenum)) {
+			$toPage = call_user_func_array(array('self','buildUri'),$page);
+			$toPage.= $anchor ? "#$anchor" : '';
+			header('Location: '.$this->_baseUrl. $this->getBaseUri() . $toPage);
+			die;
+		} else {
+			require_once 'Url/Exception.php';
+			throw new Url_Exception("Headers already sent in $filename on line $linenum. Cannot redirect.");
+		}
 	}
 	
 	/**
