@@ -133,8 +133,14 @@ abstract class Taplod_Db_Adapter_Abstract {
 	/**
 	 * See PDO::exec
 	 */
-	public function exec($sql) {
+	public function exec() {
+		if (is_null($this->_connection)) {
+			$this->getConnection();
+		}
+		$args = func_get_args();
+		
 		$t = microtime(true);
+		$sql = call_user_func_array(array('self','_autoQuote'), $args);
 		$r = $this->getConnection()->exec($sql);
 		$this->_mark_query_time = microtime(true);
 		
