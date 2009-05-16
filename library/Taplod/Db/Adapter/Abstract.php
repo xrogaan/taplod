@@ -96,7 +96,7 @@ abstract class Taplod_Db_Adapter_Abstract {
 				default:
 					$type = PDO::PARAM_STR;
 			}
-			$params[] = $this->_pdo->quote($val, $type);
+			$params[] = $this->getConnection()->quote($val, $type);
 		}
 		return vsprintf($sql, $params);
 	}
