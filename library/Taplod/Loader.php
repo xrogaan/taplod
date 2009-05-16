@@ -36,7 +36,7 @@ class Taplod_Loader {
 	
 	public static function loadFile($filename) {
 		$filename = trim($filename);
-	
+		
 		$path = explode(PATH_SEPARATOR,ini_get('include_path'));
 		foreach ($path as $dir) {
 			$file = $dir.DIRECTORY_SEPARATOR.$filename;

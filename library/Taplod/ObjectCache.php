@@ -14,24 +14,23 @@
  */
 class Taplod_ObjectCache {
     private static $_instance = null;
-
-    private static $_objects = array();
+    private $_objects;
 
     private function __construct() {
+		$this->_objects = array();
     }
 
     public function getInstance() {
         if (self::$_instance == null) {
             self::$_instance = new self();
-        } else {
-            return self::$_instance;
         }
+		return self::$_instance;
     }
 
-    public static function set($tag,$className) {
+    public static function set($tag,&$classRef) {
         $cache = self::getInstance();
         if (!array_key_exists($tag,$cache->_objects)) {
-            $cache->_objects[$tag] = $className;
+            $cache->_objects[$tag] = &$classRef;
             return true;
         }
         return false;
@@ -48,7 +47,7 @@ class Taplod_ObjectCache {
 	
 	public static function isCached($tag) {
 		$cache = self::getInstance();
-		return array_key_exists($tag,$cache->_objects)
+		return array_key_exists($cache->_objects,$tag);
 	}
 
     public function __get($tag) {

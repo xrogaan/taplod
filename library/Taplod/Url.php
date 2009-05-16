@@ -1,19 +1,19 @@
 <?php
 /**
-* @category Taplod
-* @package Taplod_Url
-* @copyright Copyright (c) 2009, Bellière Ludovic
-* @license http://opensource.org/licenses/mit-license.php MIT license
-*/
+ * @category Taplod
+ * @package Taplod_Url
+ * @copyright Copyright (c) 2009, Bellière Ludovic
+ * @license http://opensource.org/licenses/mit-license.php MIT license
+ */
 
 /**
-* @category Taplod
-* @package Taplod_Url
-* @copyright Copyright (c) 2009, Bellière Ludovic
-* @license http://opensource.org/licenses/mit-license.php MIT license
-*/
+ * @category Taplod
+ * @package Taplod_Url
+ * @copyright Copyright (c) 2009, Bellière Ludovic
+ * @license http://opensource.org/licenses/mit-license.php MIT license
+ */
 class Taplod_Url {
-	
+
 	protected $_baseUri = '/';
 	protected $_baseUrl = '';
 	protected $_uri = '';
@@ -21,7 +21,7 @@ class Taplod_Url {
 	protected $_category = false;
 	protected $_arguments = array();
 	protected $_applicationPath = '';
-	
+
 	protected static $_instance;
 
 	/**
@@ -34,9 +34,9 @@ class Taplod_Url {
 			require_once 'Taplod/Url/Exception.php';
 			throw new Taplod_Taplod_Url_Exception("Configuration array must have a 'application_path' key.");
 		}
-		
+
 		$this->_applicationPath = $config['application_path'];
-		
+
 		if (!array_key_exists('baseUrl',$config)) {
 			if (isset($_SERVER['HTTP_HOST'])) {
 				$baseUrl = 'http://' . $_SERVER['HTTP_HOST'] . '/';
@@ -53,29 +53,30 @@ class Taplod_Url {
 			}
 			$this->_setBaseUri($config['baseUri']);
 		}
-		
+
 		if (isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST'] != str_replace(array('http://','/'),'',$this->_baseUrl)) {
-			self::redirect(false); 
+			self::redirect(false);
 		}
-		
+
 		self::_init();
 	}
-	
-	/**
-     * Singleton instance
-     *
-     * @return Url
-     */
-	public static function getInstance($config=array()) {
-        if (null === self::$_instance) {
-            self::$_instance = new self($config);
-        }
 
-        return self::$_instance;
-    }
-	
+	/**
+	 * Singleton instance
+	 *
+	 * @param array $config
+	 * @return Url
+	 */
+	public static function getInstance($config=array()) {
+		if (null === self::$_instance) {
+			self::$_instance = new self($config);
+		}
+
+		return self::$_instance;
+	}
+
 	public function init() {}
-	
+
 	/**
 	 * Initialise toute les données nécessaire au bon déroulement des opérations
 	 *
@@ -87,7 +88,7 @@ class Taplod_Url {
 	 */
 	private function _init() {
 		$uri = str_replace($this->getBaseUri(),'',$_SERVER['REQUEST_URI']);
-		
+
 		if ( empty($uri) || $uri[strlen($uri)-1] == '/' ) {
 			$uri.= 'index';
 		}
@@ -116,7 +117,7 @@ class Taplod_Url {
 		} else {
 			$this->_page = '/' . $uri;
 		}
-		
+
 		if (is_array($this->_arguments) && !empty($this->_arguments)) {
 			foreach ($this->_arguments as $action) {
 				list($key,$value) = explode(':',$action);
@@ -124,7 +125,7 @@ class Taplod_Url {
 			}
 			unset($key,$value,$action);
 		}
-		
+
 		$this->init();
 	}
 
@@ -134,33 +135,41 @@ class Taplod_Url {
 	private function _setBaseUri($base) {
 		$this->_baseUri = $base;
 	}
-	
+
 	/**
 	 * vérifie si la page courante existe.
+	 *
+	 * @return boolean
 	 */
 	protected function _currentPageExists() {
 		return $this->pageExists($this->_page,$this->_category);
 	}
-	
+
 	/**
 	 * retourne la l'uri de base, sans page.
+	 *
+	 * @return string
 	 */
 	public function getBaseUri() {
 		return $this->_baseUri;
 	}
-	
+
 	/**
 	 * Retoure l'uri de base pour une page.
 	 *
 	 * Déprécié depuis que buildUri existe.
+	 *
+	 * @return string
 	 */
 	public function getUriForPage($page) {
 		return $this->getBaseUri() . $page;
 	}
-	
+
 	/**
 	 * vérifie si une page existe dans le path application
 	 *
+	 * @param string $page
+	 * @param string $category
 	 * @return boolean
 	 */
 	public function pageExists($page,$category=false) {
@@ -170,7 +179,7 @@ class Taplod_Url {
 			return file_exists($this->_applicationPath . '/' . $page . '.php');
 		}
 	}
-	
+
 	/**
 	 * Retourne le chemin complet vers la page courante.
 	 *
@@ -181,14 +190,14 @@ class Taplod_Url {
 		if (!$this->_currentPageExists()) {
 			throw new Taplod_Url_Exception('This page (' . $this->_applicationPath . $this->_category . '/' . $this->_page . ') doesn\'t exists.');
 		}
-	
+
 		if ($this->_category) {
 			return $this->_applicationPath . $this->_category . '/' . $this->_page;
 		} else {
 			return $this->_applicationPath . $this->_page;
 		}
 	}
-	
+
 	/**
 	 * Renvoie l'utilisateur sur une autre page.
 	 *
@@ -203,16 +212,16 @@ class Taplod_Url {
 				$toPage = call_user_func_array(array('self','buildUri'),$page);
 				$toPage.= $anchor ? "#$anchor" : '';
 			} else {
-				$toPage = '';
+				$toPage = $this->getBaseUri();
 			}
-			header('Location: '.$this->_baseUrl. $this->getBaseUri() . $toPage);
+			header('Location: ' . $this->_baseUrl . $toPage);
 			die;
 		} else {
 			require_once 'Url/Exception.php';
 			throw new Url_Exception("Headers already sent in $filename on line $linenum. Cannot redirect.");
 		}
 	}
-	
+
 	/**
 	 * Redirige l'utilisateur vers une page et ajoute un message dans la session.
 	 *
@@ -225,7 +234,7 @@ class Taplod_Url {
 		//addMessageInSession($message);
 		$this->redirect($page,'redirect_message_box');
 	}
-	
+
 	/**
 	 * Construit une url selon les arguments passé a la fonction
 	 *
@@ -247,24 +256,24 @@ class Taplod_Url {
 				require_once 'Taplod/Url/Exception.php';
 				throw new Taplod_Url_Exception ('Argument 2 passed to ' . __CLASS__ . '::' . __FUNCTION__ . ' must be a string, ' . gettype($arguments) . ' given.');
 			}
-			
+				
 			$params = array();
 			foreach ($arguments as $key => $value) {
 				$params[] = "$key:$value";
 			}
 		}
-		
+
 		if (!is_bool($category) && !is_array($category)) {
 			$category = array($category);
 		}
-		
+
 		$category = implode('/',$category) . '/';
 			
 		if (!$this->pageExists($page,$category)) {
 			// do something -> page doesn't exists.
 		}
-		
-		return $category . $page . ((isset($params)) ? "/" . implode('-',$params) : '');
-		
+
+		return $this->getBaseUri() . $category . $page . ((isset($params)) ? "/" . implode('-',$params) : '');
+
 	}
 }
