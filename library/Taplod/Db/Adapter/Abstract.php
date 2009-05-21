@@ -96,9 +96,27 @@ abstract class Taplod_Db_Adapter_Abstract {
 				default:
 					$type = PDO::PARAM_STR;
 			}
-			$params[] = $this->getConnection()->quote($val, $type);
+			$params[] = self::quote($val, $type);
 		}
 		return vsprintf($sql, $params);
+	}
+	
+	public function quote($data,$type) {
+		switch ($type) {
+			case PDO::PARAM_INT:
+				return $data;
+				break;
+			case PDO::PARAM_BOOL:
+				return ($data) ? true : false ;
+				break;
+			case PDO::PARAM_NULL:
+				return 'NULL';
+				break;
+			case PDO::PARAM_STR:
+			default:
+				return $this->getConnection()->quote($data);
+				break;
+		}
 	}
 	
 	/**
@@ -150,10 +168,13 @@ abstract class Taplod_Db_Adapter_Abstract {
 	}
 	
 	/**
-	 *  Fetches the next row from a result set 
+	 *  Fetches the next row from a result set
 	 */
-	public function fetch($sql) {
-		return $this->getConnection()->fetch($sql,$this->_fetchMode);
+	public function fetch() {
+		$args = func_get_args();
+		
+		$query = call_user_func_array(array('self', 'query'), $args);
+		return $query->fetch($this->_fetchMode);
 	}
 	
 	/**
@@ -266,6 +287,12 @@ abstract class Taplod_Db_Adapter_Abstract {
 	/**
 	 * Build & exec insert query
 	 *
+	 * Cette fonction va construire une requête d'insertion et va automatiquement
+	 * échapper les valeurs selon leurs type.
+	 * Exemple: $obj->insert('table',array('id'=>1,'data'=>'Mon premier insert'));
+	 *    va passer a query: "INSERT INTO `table` (id, data) VALUES (1, 'Mon premier insert')"
+	 *
+	 * @see function _autoQuote
 	 * @return PDOStatement_Timer
 	 */
 	public function insert($table, $data) {
@@ -274,12 +301,13 @@ abstract class Taplod_Db_Adapter_Abstract {
 		
 		foreach ($data as $key => $value) {
 			$columns[] = $key;
-			$values[]  = '%s';
+			$values[]  = '%s'; //gettype($value) == 'integer' ? '%d' : '%s';
 		}
 		
-		$sql = 'INSERT INTO ' . $table . '(' . implode(',', $columns) . ') VALUES (' . implode(',', $values) . ')';
-		$sql = vsprintf($sql, array_map(array('self', '_autoQuote')), array_values($data));
-		return self::query($sql);
+		$sqlTemplate[] = 'INSERT INTO `' . $table . '` (' . implode(',', $columns) . ') VALUES (' . implode(',', $values) . ')';
+		$sql = call_user_func_array(array('self','_autoQuote'), array_merge($sqlTemplate,array_values($data)));
+		self::query($sql);
+		return $this->getConnection()->lastInsertId();
 	}
 	
 	/**

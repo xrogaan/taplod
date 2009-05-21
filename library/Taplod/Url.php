@@ -212,13 +212,13 @@ class Taplod_Url {
 				$toPage = call_user_func_array(array('self','buildUri'),$page);
 				$toPage.= $anchor ? "#$anchor" : '';
 			} else {
-				$toPage = $this->getBaseUri();
+				$toPage = $this->getBaseUri() . $page;
 			}
 			header('Location: ' . $this->_baseUrl . $toPage);
 			die;
 		} else {
 			require_once 'Url/Exception.php';
-			throw new Url_Exception("Headers already sent in $filename on line $linenum. Cannot redirect.");
+			throw new Taplod_Url_Exception("Headers already sent in $filename on line $linenum. Cannot redirect.");
 		}
 	}
 
@@ -230,9 +230,17 @@ class Taplod_Url {
 	 * @param string $message
 	 * @return void
 	 */
-	public function redirectError(array $page, $message) {
-		//addMessageInSession($message);
+	public function redirectError( $page, $message) {
+		self::addMessageInSession($message);
 		$this->redirect($page,'redirect_message_box');
+	}
+	
+	public function addMessageInSession($message='') {
+		if (session_id() == '') {
+			session_name('taplod_default');
+			session_start();
+		}
+		$_SESSION['session_messages'][] = $message;
 	}
 
 	/**
@@ -266,8 +274,12 @@ class Taplod_Url {
 		if (!is_bool($category) && !is_array($category)) {
 			$category = array($category);
 		}
-
-		$category = implode('/',$category) . '/';
+		
+		if (!is_bool($category)) {
+			$category = implode('/',$category) . '/';
+		} else {
+			$category = '';
+		}
 			
 		if (!$this->pageExists($page,$category)) {
 			// do something -> page doesn't exists.
