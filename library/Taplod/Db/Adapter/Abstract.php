@@ -15,6 +15,8 @@ abstract class Taplod_Db_Adapter_Abstract {
 	protected $_mark_query_time;
 	protected $_queries_log;
 	
+	private $_sql;
+	
 	
 	/**
 	 * $config est une liste de clef/valeurs nécessaire a la connexion + paramètrage
@@ -133,18 +135,22 @@ abstract class Taplod_Db_Adapter_Abstract {
 	 * @return PDOStatement_Timer
 	 */
 	public function query () {
-		if (is_null($this->_connection)) {
-			$this->getConnection();
+		try {
+			if (is_null($this->_connection)) {
+				$this->getConnection();
+			}
+			$args = func_get_args();
+			
+			$t = microtime(true);
+			$this->_sql = call_user_func_array(array('self','_autoQuote'), $args);
+			$r = $this->getConnection()->query($this->_sql);
+			$this->_mark_query_time = microtime(true);
+			
+			$this->_queries_log[] = array($this->_mark_query_time-$t, 'query', $args);
+		} catch (PDOException $exception){
+			require_once 'Taplod/Db/Adapter/Exception.php';
+			throw new Taplod_Db_Adapter_Exception($exception->getMessage());
 		}
-		$args = func_get_args();
-		
-		$t = microtime(true);
-		$sql = call_user_func_array(array('self','_autoQuote'), $args);
-		$r = $this->getConnection()->query($sql);
-		$this->_mark_query_time = microtime(true);
-		
-		$this->_queries_log[] = array($this->_mark_query_time-$t, 'query', $args);
-		
 		return $r;
 	}
 	
@@ -152,18 +158,22 @@ abstract class Taplod_Db_Adapter_Abstract {
 	 * See PDO::exec
 	 */
 	public function exec() {
-		if (is_null($this->_connection)) {
-			$this->getConnection();
+		try {
+			if (is_null($this->_connection)) {
+				$this->getConnection();
+			}
+			$args = func_get_args();
+			
+			$t = microtime(true);
+			$this->_sql = call_user_func_array(array('self','_autoQuote'), $args);
+			$r = $this->getConnection()->exec($this->_sql);
+			$this->_mark_query_time = microtime(true);
+			
+			$this->_queries_log[] = array($this->_mark_query_time-$t, 'exec', $args);
+		} catch (PDOException $exception){
+			require_once 'Taplod/Db/Adapter/Exception.php';
+			throw new Taplod_Db_Adapter_Exception($exception->getMessage());
 		}
-		$args = func_get_args();
-		
-		$t = microtime(true);
-		$sql = call_user_func_array(array('self','_autoQuote'), $args);
-		$r = $this->getConnection()->exec($sql);
-		$this->_mark_query_time = microtime(true);
-		
-		$this->_queries_log[] = array($this->_mark_query_time-$t, 'exec', $args);
-		
 		return $r;
 	}
 	
@@ -377,6 +387,10 @@ abstract class Taplod_Db_Adapter_Abstract {
 	public function getConnection() {
 		$this->_connect();
 		return $this->_connection;
+	}
+	
+	public function __toString() {
+		return $this->_sql;
 	}
 	
 	/**
