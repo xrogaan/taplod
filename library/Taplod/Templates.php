@@ -34,6 +34,7 @@ class Taplod_Templates {
 	private $_data = array();
 
 	protected $_helpers = array();
+	private $_helperLoaded = array();
 
 	public function __construct($template_path='',$options=array()) {
 		if (!empty($template_path)) {
@@ -73,18 +74,24 @@ class Taplod_Templates {
 	 */
 	public function render($tag) {
 		ob_start();
-		if (isset($this->_files['_begin'])) {
-			include $this->_file('_begin');
-		}
-		if (!is_array($tag)) {
-			include $this->_file($tag);
-		} else {
-			foreach ($tag as $ttag) {
-				include $this->_file($ttag);
+		try {
+			if (isset($this->_files['_begin'])) {
+				include $this->_file('_begin');
 			}
-		}
-		if (isset($this->_files['_end'])) {
-			include $this->_file('_end');
+			if (!is_array($tag)) {
+				include $this->_file($tag);
+			} else {
+				foreach ($tag as $ttag) {
+					include $this->_file($ttag);
+				}
+			}
+			if (isset($this->_files['_end'])) {
+				include $this->_file('_end');
+			}
+		} catch (Taplod_Exception $e) {
+			ob_end_clean();
+			throw $e;
+			return;
 		}
 		return ob_get_clean();
 	}
@@ -202,19 +209,30 @@ class Taplod_Templates {
 		$args
 		);
 	}
-
+	
+	public function getHelpers() {
+		return $this->_helpers;
+	}
+	
 	public function getHelper($name) {
 		$name = strtolower($name);
 
-		$prefix      = 'Taplod_Template_Helper';
-		$prefix_path = 'Taplod/Template/Helper/';
+		$prefix      = 'Taplod_Templates_Helper';
+		$prefix_path = 'Taplod/Templates/Helper/';
 
-		if (array_key_exists($name,$this->_helpers)) {
-			return $this->_helpers[$name];
-		} else {
-			$name = ucfirst($name);
-			Taplod_Loader::loadClass($prefix . $name);
-			$this->_helpers[$name] = new $name();
+		if (!array_key_exists($name,$this->_helpers)) {
+			$file = $prefix . '_' . ucfirst($name);
+			try {
+				Taplod_Loader::loadClass($file);
+			} catch (Taplod_Exception $exception) {
+				require_once 'Taplod/Templates/Exception.php';
+				throw new Taplod_Templates_Exception("Cannot load '$name' helper.<br/>" . $exception->getMessage());
+			}
+			$this->_helpers[$name] = new $file();
+			if (method_exists($this->_helpers[$name],'setTemplate')) {
+				$this->_helpers[$name]->setTemplate($this);
+			}
 		}
+		return $this->_helpers[$name];
 	}
 }
