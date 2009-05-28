@@ -28,12 +28,13 @@ class Taplod_Url {
 	 * Constructeur
 	 *
 	 * défini les prérequis.
+	 * @param mixed $config
 	 */
 	protected function __construct($config) {
 		if ($config instanceof Taplod_Config) {
 			$config = $config->toArray();
 		}
-		
+
 		if (!array_key_exists('application_path',$config)) {
 			if (defined('APPLICATION_PATH')) {
 				$config['application_path'] = APPLICATION_PATH;
@@ -205,6 +206,24 @@ class Taplod_Url {
 			return $this->_applicationPath . $this->_page;
 		}
 	}
+	
+	/**
+	 * Retourne le chemin complet vers la catégorie courrante, si la catégorie
+	 * est la racine, retourne false.
+	 *
+	 * @return string|boolean
+	 */
+	public function getCategoryPath() {
+		if (!$this->_category) {
+			return false;
+		}
+		
+		if (!file_exists($this->_applicationPath . $this->_category . '/')) {
+			throw new Taplod_Url_Exception('<em>' . $this->_category . "/</em> can't be found in the application path.");
+		}
+		
+		return $this->_applicationPath . $this->_category . '/';
+	}
 
 	/**
 	 * Renvoie l'utilisateur sur une autre page.
@@ -242,7 +261,7 @@ class Taplod_Url {
 		self::addMessageInSession($message);
 		$this->redirect($page,'redirect_message_box');
 	}
-	
+
 	public function addMessageInSession($message='') {
 		if (session_id() == '') {
 			session_name('taplod_default');
@@ -272,7 +291,7 @@ class Taplod_Url {
 				require_once 'Taplod/Url/Exception.php';
 				throw new Taplod_Url_Exception ('Argument 2 passed to ' . __CLASS__ . '::' . __FUNCTION__ . ' must be a string, ' . gettype($arguments) . ' given.');
 			}
-				
+
 			$params = array();
 			foreach ($arguments as $key => $value) {
 				$params[] = "$key:$value";
@@ -282,7 +301,7 @@ class Taplod_Url {
 		if (!is_bool($category) && !is_array($category)) {
 			$category = array($category);
 		}
-		
+
 		if (!is_bool($category)) {
 			$category = implode('/',$category) . '/';
 		} else {
