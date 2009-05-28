@@ -30,28 +30,36 @@ class Taplod_Url {
 	 * défini les prérequis.
 	 */
 	protected function __construct($config) {
+		if ($config instanceof Taplod_Config) {
+			$config = $config->toArray();
+		}
+		
 		if (!array_key_exists('application_path',$config)) {
-			require_once 'Taplod/Url/Exception.php';
-			throw new Taplod_Taplod_Url_Exception("Configuration array must have a 'application_path' key.");
+			if (defined('APPLICATION_PATH')) {
+				$config['application_path'] = APPLICATION_PATH;
+			} else {
+				require_once 'Taplod/Url/Exception.php';
+				throw new Taplod_Taplod_Url_Exception("Configuration array must have a 'application_path' key.");
+			}
 		}
 
 		$this->_applicationPath = $config['application_path'];
 
-		if (!array_key_exists('baseUrl',$config)) {
+		if (!array_key_exists('baseurl',$config)) {
 			if (isset($_SERVER['HTTP_HOST'])) {
-				$baseUrl = 'http://' . $_SERVER['HTTP_HOST'] . '/';
+				$config['baseurl'] = 'http://' . $_SERVER['HTTP_HOST'] . '/';
 			} else {
 				require_once 'Taplod/Url/Exception.php';
 				throw new Taplod_Taplod_Url_Exception("Configuration array must have a 'baseUrl' key.");
 			}
 		}
-		$this->_baseUrl = $config['baseUrl'];
+		$this->_baseUrl = $config['baseurl'];
 
-		if (array_key_exists('baseUri',$config)) {
-			if (substr($config['baseUri'],0,1) != '/') {
-				$config['baseUri'] = '/' . $config['baseUri'];
+		if (array_key_exists('baseuri',$config)) {
+			if (substr($config['baseuri'],0,1) != '/') {
+				$config['baseuri'] = '/' . $config['baseuri'];
 			}
-			$this->_setBaseUri($config['baseUri']);
+			$this->_setBaseUri($config['baseuri']);
 		}
 
 		if (isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST'] != str_replace(array('http://','/'),'',$this->_baseUrl)) {

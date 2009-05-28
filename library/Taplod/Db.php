@@ -17,6 +17,10 @@ require_once 'Taplod/Loader.php';
 class Taplod_Db {
 
 	public static function factory ($adapter, $config = array()) {
+		if ($config instanceof Taplod_Config) {
+			$config = $config->toArray();
+		}
+		
 		if (!is_array($config)) {
 			require_once 'Taplod/Db/Exception.php';
 			throw new Taplod_Db_Exception('Adapter parameters must be in an array');

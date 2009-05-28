@@ -22,22 +22,23 @@ class Taplod_Loader {
 		if (class_exists($class, false) || interface_exists($class, false)) {
 			return false;
 		}
-		
+
 		$file = str_replace('_',DIRECTORY_SEPARATOR,$class) . '.php';
-		
+
 		self::loadFile($file);
-		
+
 		if (!class_exists($class, false) && !interface_exists($class, false)) {
 			require_once 'Taplod/Exception.php';
 			throw new Taplod_Exception("Class \"$class\" was not found in the source file \"$file\".");
 		}
-		
+
 	}
-	
+
 	public static function loadFile($filename) {
 		$filename = trim($filename);
-		
+
 		$path = explode(PATH_SEPARATOR,ini_get('include_path'));
+
 		foreach ($path as $dir) {
 			$file = $dir.DIRECTORY_SEPARATOR.$filename;
 			if (file_exists($file)) {
@@ -45,12 +46,11 @@ class Taplod_Loader {
 				return;
 			}
 		}
-		
+
 		require_once 'Taplod/Exception.php';
-		throw new Taplod_Exception("File '$file' was not found.");
-		
+		throw new Taplod_Exception("File '$filename' was not found.");
 	}
-	
+
 	/**
 	 * spl_autload() implementation
 	 */
@@ -62,7 +62,7 @@ class Taplod_Loader {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Register & unregister autoload class with spl_autload_(un)register
 	 *
@@ -76,9 +76,9 @@ class Taplod_Loader {
 			require_once 'Taplod/Exception.php';
 			throw new Taplod_Exception('spl_autload doesn\'t exists in this php installation');
 		}
-		
+
 		self::loadClass($class);
-		
+
 		if ($enabled == true) {
 			spl_autoload_register(array($class, 'autoload'));
 		} else {
