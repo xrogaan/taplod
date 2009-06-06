@@ -40,7 +40,12 @@ class Taplod_Templates {
 		if (!empty($template_path)) {
 			$this->_templatePath = $template_path;
 		} else {
-			$this->_templatePath = TEMPLATE_PATH;
+			if (defined('TEMPLATE_PATH')) {
+				$this->_templatePath = TEMPLATE_PATH;
+			} else {
+				require_once 'Taplod/Templates/Exception.php';
+				throw new Taplod_Templates_Exception("Can't find template path");
+			}
 		}
 		$this->_options = array_merge($this->_options,$options);
 	}
@@ -97,22 +102,6 @@ class Taplod_Templates {
 	}
 
 	/**
-	 * Check if the template file is readable and returns its name
-	 *
-	 * @param string $tag
-	 * @return string
-	 * @throws templates_exception
-	 */
-	private function _file($tag) {
-		if (is_readable($this->_templatePath.$this->_files[$tag])) {
-			return $this->_templatePath.$this->_files[$tag];
-		} else {
-			require_once 'Templates/Exception.php';
-			throw new Taplod_Templates_Exception('The file <em>'.$this->_templatePath.$this->_files[$tag]. '</em> isn\'t readable');
-		}
-	}
-
-	/**
 	 * Used to set some functions who escape the content
 	 *
 	 * @param function $ref
@@ -158,6 +147,19 @@ class Taplod_Templates {
 		}
 		return $var;
 	}
+	
+	/**
+	 * Remove all variable assigned via __set()
+	 * @return void
+	 */
+	public function clearVars () {
+		$vars = get_object_vars($template);
+		foreach ($vars as $key => $value) {
+			if (substr($key, 0, 1) != '_') {
+				unset($template->$key);
+			}
+		}
+	}
 
 	public function __set($name,$data) {
 		if ('_' != substr($name, 0, 1)) {
@@ -170,7 +172,7 @@ class Taplod_Templates {
 	}
 
 	public function __unset($name) {
-		if ('_' != substr($name, 0, 1) && isset($this->_data[$name])) {
+		if ('_' != substr($name, 0, 1) && isset($this->$name)) {
 			unset($this->$name);
 		}
 	}
@@ -234,5 +236,21 @@ class Taplod_Templates {
 			}
 		}
 		return $this->_helpers[$name];
+	}
+
+	/**
+	 * Check if the template file is readable and returns its name
+	 *
+	 * @param string $tag
+	 * @return string
+	 * @throws templates_exception
+	 */
+	private function _file($tag) {
+		if (is_readable($this->_templatePath.$this->_files[$tag])) {
+			return $this->_templatePath.$this->_files[$tag];
+		} else {
+			require_once 'Templates/Exception.php';
+			throw new Taplod_Templates_Exception('The file <em>'.$this->_templatePath.$this->_files[$tag]. '</em> isn\'t readable');
+		}
 	}
 }
