@@ -27,6 +27,12 @@ class Taplod_ObjectCache {
 		return self::$_instance;
     }
 
+    /**
+     * Add a row to the registry
+     * @param string $tag Nom de l'entrée
+     * @param $classRef
+     * @return boolean
+     */
     public static function set($tag,&$classRef) {
         $cache = self::getInstance();
         if (!array_key_exists($tag,$cache->_objects)) {
@@ -36,6 +42,11 @@ class Taplod_ObjectCache {
         return false;
     }
 
+    /**
+     * Retourne l'objet enregistré, s'il existe.
+     * @param $tag
+     * @return object
+     */
     public static function get($tag) {
         $cache = self::getInstance();
         if (!array_key_exists($tag,$cache->_objects)) {
@@ -45,6 +56,11 @@ class Taplod_ObjectCache {
         return $cache->_objects[$tag];
     }
 	
+    /**
+     * Vérifie si l'entrée $tag existe dans le registre.
+     * @param $tag
+     * @return boolean
+     */
 	public static function isCached($tag) {
 		$cache = self::getInstance();
 		return array_key_exists($cache->_objects,$tag);
@@ -71,6 +87,6 @@ class Taplod_ObjectCache {
         if (self::$_instance == null) {
             return false;
         }
-        return array_key_exists($tag,$cache->_objects);
+        return array_key_exists($tag,self::$_instance->_objects);
     }
 }

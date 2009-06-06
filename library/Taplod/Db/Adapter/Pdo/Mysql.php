@@ -13,6 +13,10 @@ class Taplod_Db_Adapter_Pdo_Mysql extends Taplod_Db_Adapter_Abstract {
 	
 	protected $_pdoType = 'mysql';
 	
+	/**
+	 * (non-PHPdoc)
+	 * @see Db/Adapter/Taplod_Db_Adapter_Abstract#_connect()
+	 */
 	protected function _connect() {
 		if ($this->_connection) {
 			return;
@@ -34,10 +38,18 @@ class Taplod_Db_Adapter_Pdo_Mysql extends Taplod_Db_Adapter_Abstract {
 		}
 	}
 	
+	/**
+	 * (non-PHPdoc)
+	 * @see Db/Adapter/Taplod_Db_Adapter_Abstract#isConnected()
+	 */
 	public function isConnected() {
 		return ($this->_connection instanceof PDO);
 	}
 	
+	/**
+	 * (non-PHPdoc)
+	 * @see Db/Adapter/Taplod_Db_Adapter_Abstract#closeConnection()
+	 */
 	public function closeConnection() {
 		$this->_connection = null;
 	}

@@ -262,6 +262,13 @@ class Taplod_Url {
 		$this->redirect($page,'redirect_message_box');
 	}
 
+	/**
+	 * Ajoute un message dans la session courante
+	 * Le message sera affiché au prochain chargement de page.
+	 *
+	 * @param string $message
+	 * @return void
+	 */
 	public function addMessageInSession($message='') {
 		if (session_id() == '') {
 			session_name('taplod_default');

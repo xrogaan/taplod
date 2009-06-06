@@ -34,6 +34,12 @@ class Taplod_Loader {
 
 	}
 
+	/**
+	 * Vérifie l'existance d'un fichier et l'inclus
+	 *
+	 * @param string $filename
+	 * @return void
+	 */
 	public static function loadFile($filename) {
 		$filename = trim($filename);
 

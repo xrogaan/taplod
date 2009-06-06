@@ -15,7 +15,13 @@ require_once 'Taplod/Loader.php';
  * @license http://opensource.org/licenses/mit-license.php MIT license
  */
 class Taplod_Db {
-
+	
+	/**
+	 *
+	 * @param string $adapter
+	 * @param mixed $config
+	 * @return Taplod_Db_Adapter_Abstract
+	 */
 	public static function factory ($adapter, $config = array()) {
 		if ($config instanceof Taplod_Config) {
 			$config = $config->toArray();

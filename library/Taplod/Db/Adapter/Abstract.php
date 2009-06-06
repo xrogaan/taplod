@@ -389,6 +389,10 @@ abstract class Taplod_Db_Adapter_Abstract {
 		return $this->_connection;
 	}
 	
+	/**
+	 * retourne la requete sql courante
+	 * @return string
+	 */
 	public function __toString() {
 		return $this->_sql;
 	}
