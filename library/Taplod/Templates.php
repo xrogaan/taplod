@@ -20,13 +20,14 @@ class Taplod_Templates {
 	 * @var array
 	 */
 	protected $_files = array();
+	protected $_partialFile = array();
 
 	/**
 	 * Path to the templates files
 	 *
 	 * @var string
 	 */
-	protected $_templatePath;
+	protected $_templatePaths;
 
 	protected $_options = array();
 
@@ -36,18 +37,43 @@ class Taplod_Templates {
 	protected $_helpers = array();
 	private $_helperLoaded = array();
 
-	public function __construct($template_path='',$options=array()) {
-		if (!empty($template_path)) {
-			$this->_templatePath = $template_path;
-		} else {
+	public function __construct($options=array()) {
+
+		if ($options instanceof Taplod_Config) {
+			$options = $options->toArray();
+		}
+		
+		if (!isset($options['templatePath'])) {
 			if (defined('TEMPLATE_PATH')) {
-				$this->_templatePath = TEMPLATE_PATH;
+				$options['templatePath'] = TEMPLATE_PATH;
 			} else {
 				require_once 'Taplod/Templates/Exception.php';
 				throw new Taplod_Templates_Exception("Can't find template path");
 			}
 		}
+		
+		if (!isset($options['templatePartialPath'])) {
+			$options['templatePartialPath'] = $this->_templatePath . '/_partial/';
+		}
+		
 		$this->_options = array_merge($this->_options,$options);
+	}
+	
+	/**
+	 * Return an option
+	 *
+	 * @param string $key search for $key in $_options
+	 * @param string|null $default default value returned instead of empty data
+	 * @return string|array
+	 */
+	function getOptions($key=null,$default=null) {
+		if (is_null($key)) {
+			return $this->_options;
+		} elseif (isset($this->_options[$key])) {
+			return $this->_options[$key];
+		} else {
+			return $default;
+		}
 	}
 
 	/**
@@ -56,7 +82,7 @@ class Taplod_Templates {
 	 * @return string
 	 */
 	public function getTemplatePath() {
-		return $this->_templatePath;
+		return $this->_option['templatePath'];
 	}
 
 	/**
@@ -69,6 +95,12 @@ class Taplod_Templates {
 	public function addFile($tag,$name) {
 		$this->_files[$tag] = $name;
 		return $this;
+	}
+	
+	public function loadPartialFile($name,$file) {
+		if (file_exists($this->getOptions('templatePartialPath') . $file)) {
+			$this->_partialFile[$name] = $file;
+		}
 	}
 
 	/**
@@ -146,6 +178,24 @@ class Taplod_Templates {
 			}
 		}
 		return $var;
+	}
+	
+	public function assign($name,$data=null) {
+		try {
+			if (is_string($name)) {
+				self::__set($name, $data);
+			} elseif (is_array($name)) {
+				foreach ($name as $key => $value) {
+					self::__set($key,$vale);
+				}
+			} else {
+				require_once 'Taplod/Templates/Exception.php';
+				throw new Taplod_Templates_Exception('Argument 2 passed to ' . __CLASS__ . '::' . __FUNCTION__ . ' must be a string or an array, ' . gettype($arguments) . ' given.');
+			}
+		} catch (Taplod_Templates_Exception $e) {
+			throw $e;
+		}
+		return $this;
 	}
 	
 	/**
@@ -246,11 +296,15 @@ class Taplod_Templates {
 	 * @throws templates_exception
 	 */
 	private function _file($tag) {
-		if (is_readable($this->_templatePath.$this->_files[$tag])) {
-			return $this->_templatePath.$this->_files[$tag];
+		if (isset($this->_partialFile[$tag])) {
+			return $this->_option['templatePartialPath'] . $this->_partialFile[$tag];
 		} else {
-			require_once 'Templates/Exception.php';
-			throw new Taplod_Templates_Exception('The file <em>'.$this->_templatePath.$this->_files[$tag]. '</em> isn\'t readable');
+			if (is_readable($this->_option['templatePath'] . $this->_files[$tag])) {
+				return $this->_option['templatePath'] . $this->_files[$tag];
+			} else {
+				require_once 'Templates/Exception.php';
+				throw new Taplod_Templates_Exception('The file <em>'.$this->_templatePath.$this->_files[$tag]. '</em> isn\'t readable');
+			}
 		}
 	}
 }
