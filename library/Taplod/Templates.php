@@ -22,13 +22,6 @@ class Taplod_Templates {
 	protected $_files = array();
 	protected $_partialFile = array();
 
-	/**
-	 * Path to the templates files
-	 *
-	 * @var string
-	 */
-	protected $_templatePaths;
-
 	protected $_options = array();
 
 	private $_escape = array('htmlentities');
@@ -53,7 +46,7 @@ class Taplod_Templates {
 		}
 		
 		if (!isset($options['templatePartialPath'])) {
-			$options['templatePartialPath'] = $this->_templatePath . '/_partial/';
+			$options['templatePartialPath'] = $this->getOptions('templatePath') . '/_partial/';
 		}
 		
 		$this->_options = array_merge($this->_options,$options);
@@ -82,7 +75,7 @@ class Taplod_Templates {
 	 * @return string
 	 */
 	public function getTemplatePath() {
-		return $this->_option['templatePath'];
+		return $this->_options['templatePath'];
 	}
 
 	/**
@@ -227,14 +220,6 @@ class Taplod_Templates {
 		}
 	}
 
-	public function __get($name) {
-		if ('_' != substr($name,0,1) && isset($this->$name)) {
-			return $this->$name;
-		}
-		require_once 'Templates/Exception.php';
-		throw new Taplod_Templates_Exception('Getting private or protected class members is not allowed');
-	}
-
 	public function __isset($key) {
 		$strpos = mb_strpos($key,'_');
 		if (!is_bool($strpos) && $strpos !== 0) {
@@ -297,13 +282,13 @@ class Taplod_Templates {
 	 */
 	private function _file($tag) {
 		if (isset($this->_partialFile[$tag])) {
-			return $this->_option['templatePartialPath'] . $this->_partialFile[$tag];
+			return $this->_options['templatePartialPath'] . $this->_partialFile[$tag];
 		} else {
-			if (is_readable($this->_option['templatePath'] . $this->_files[$tag])) {
-				return $this->_option['templatePath'] . $this->_files[$tag];
+			if (is_readable($this->_options['templatePath'] . $this->_files[$tag])) {
+				return $this->_options['templatePath'] . $this->_files[$tag];
 			} else {
 				require_once 'Templates/Exception.php';
-				throw new Taplod_Templates_Exception('The file <em>'.$this->_templatePath.$this->_files[$tag]. '</em> isn\'t readable');
+				throw new Taplod_Templates_Exception('The file <em>'.$this->_options['templatePath'].$this->_files[$tag]. '</em> isn\'t readable');
 			}
 		}
 	}
