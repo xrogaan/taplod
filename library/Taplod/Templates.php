@@ -252,20 +252,20 @@ class Taplod_Templates {
 	}
 	
 	public function getHelper($name) {
-		$name = strtolower($name);
+		$name = ucfirst($name);
 
 		$prefix      = 'Taplod_Templates_Helper';
 		$prefix_path = 'Taplod/Templates/Helper/';
 
 		if (!array_key_exists($name,$this->_helpers)) {
-			$file = $prefix . '_' . ucfirst($name);
+			$file = $prefix . '_' . $name;
 			try {
 				Taplod_Loader::loadClass($file);
 			} catch (Taplod_Exception $exception) {
 				require_once 'Taplod/Templates/Exception.php';
 				throw new Taplod_Templates_Exception("Cannot load '$name' helper.<br/>" . $exception->getMessage());
 			}
-			$this->_helpers[$name] = new $file();
+			$this->_helpers[$name] = new $classname();
 			if (method_exists($this->_helpers[$name],'setTemplate')) {
 				$this->_helpers[$name]->setTemplate($this);
 			}
