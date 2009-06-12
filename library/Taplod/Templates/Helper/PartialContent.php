@@ -25,19 +25,14 @@ class Taplod_Templates_Helper_PartialContent extends Taplod_Templates_Helper_Abs
 	protected $partialName = null;
 	
 	protected function init($partialName,$page) {
-		if (!isset($this->partialName) && !isset($this->page)) {
-			$this->partialName = $partialName;
-			$this->page = $page;
-		}
+		$this->partialName = $partialName;
+		$this->page = $page;
 		return $this;
 	}
 
 	public function PartialContent($partial,$page,$data=null) {
 		
-		if ($partial == null && $page == null) {
-			require_once 'Taplod/Template/Exception.php';
-			throw new Taplod_Template_Exception('');
-		} else {
+		if ($partial != null && $page != null) {
 			self::init($partial,$page);
 		}
 		
@@ -63,7 +58,7 @@ class Taplod_Templates_Helper_PartialContent extends Taplod_Templates_Helper_Abs
 		$content = '';
 		$counter = 0;
 		foreach($data as $value) {
-			$value = array_merge($value,array('partialCounter',$counter));
+			$value = array_merge($value,array('partialCounter'=>$counter));
 			$content.= $this->PartialContent(null, null, $value);
 			$counter++;
 		}

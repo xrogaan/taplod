@@ -91,8 +91,10 @@ class Taplod_Templates {
 	}
 	
 	public function loadPartialFile($name,$file) {
-		if (file_exists($this->getOptions('templatePartialPath') . $file)) {
+		if (file_exists($this->getOptions('templatePath') . $this->getOptions('templatePartialPath') . $file)) {
 			$this->_partialFile[$name] = $file;
+		} else {
+			throw new Taplod_Templates_Exception("$file not found in template partial path");
 		}
 	}
 
@@ -105,18 +107,12 @@ class Taplod_Templates {
 	public function render($tag) {
 		ob_start();
 		try {
-			if (isset($this->_files['_begin'])) {
-				include $this->_file('_begin');
-			}
 			if (!is_array($tag)) {
 				include $this->_file($tag);
 			} else {
 				foreach ($tag as $ttag) {
 					include $this->_file($ttag);
 				}
-			}
-			if (isset($this->_files['_end'])) {
-				include $this->_file('_end');
 			}
 		} catch (Taplod_Exception $e) {
 			ob_end_clean();
@@ -179,7 +175,7 @@ class Taplod_Templates {
 				self::__set($name, $data);
 			} elseif (is_array($name)) {
 				foreach ($name as $key => $value) {
-					self::__set($key,$vale);
+					self::__set($key,$value);
 				}
 			} else {
 				require_once 'Taplod/Templates/Exception.php';
@@ -196,10 +192,10 @@ class Taplod_Templates {
 	 * @return void
 	 */
 	public function clearVars () {
-		$vars = get_object_vars($template);
+		$vars = get_object_vars($this);
 		foreach ($vars as $key => $value) {
 			if (substr($key, 0, 1) != '_') {
-				unset($template->$key);
+				unset($this->$key);
 			}
 		}
 	}
@@ -265,7 +261,7 @@ class Taplod_Templates {
 				require_once 'Taplod/Templates/Exception.php';
 				throw new Taplod_Templates_Exception("Cannot load '$name' helper.<br/>" . $exception->getMessage());
 			}
-			$this->_helpers[$name] = new $classname();
+			$this->_helpers[$name] = new $file();
 			if (method_exists($this->_helpers[$name],'setTemplate')) {
 				$this->_helpers[$name]->setTemplate($this);
 			}
@@ -282,7 +278,7 @@ class Taplod_Templates {
 	 */
 	private function _file($tag) {
 		if (isset($this->_partialFile[$tag])) {
-			return $this->_options['templatePartialPath'] . $this->_partialFile[$tag];
+			return $this->getOptions('templatePath') . $this->_options['templatePartialPath'] . $this->_partialFile[$tag];
 		} else {
 			if (is_readable($this->_options['templatePath'] . $this->_files[$tag])) {
 				return $this->_options['templatePath'] . $this->_files[$tag];
