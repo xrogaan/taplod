@@ -32,12 +32,14 @@ class Taplod_Templates_Helper_MakeList extends Taplod_Templates_Helper_Abstract 
 	 * Si $attribs est un simple tableau, il ne sera généré que les attributs
 	 * de l'élément ul.
 	 *
+	 * $data est
 	 *
 	 * @param array $items
 	 * @param array $attribs
+	 * @param array $data
 	 * @return string
 	 */
-	public function MakeList(array $items,$attribs=false) {
+	public function MakeList(array $items,$attribs=false,$data=false) {
 		
 		if ($attribs) {
 			if (($liExists = isset($attribs['li']))) {
@@ -62,8 +64,12 @@ class Taplod_Templates_Helper_MakeList extends Taplod_Templates_Helper_Abstract 
 		$list = '';
 		foreach ($items as $name => $item) {
 			if (is_array($item)) {
-				$list.= $this->MakeList($item, $attribs);
+				$toPass = (isset($data[$name])) ? $data[$name] : false;
+				$list.= $this->MakeList($item, $attribs, $toPass);
 			} else {
+				if ($data && isset($data[$item])) {
+					$item = $data[$item];
+				}
 				$list.= '<li'.(isset($attribsLi[$name]) ? $attribsLi[$name] : '').'>' . $item . '</li>' . "\n";
 			}
 		}
@@ -77,7 +83,7 @@ class Taplod_Templates_Helper_MakeList extends Taplod_Templates_Helper_Abstract 
 	 * @param array $data
 	 * @return string
 	 */
-	private function _getAttribs($data) {
+	protected function _getAttribs($data) {
 		$attribs = '';
 		foreach ($data as $name => $attrib) {
 			if (strpos($attrib,'"')) {
