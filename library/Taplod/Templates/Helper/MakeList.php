@@ -40,18 +40,20 @@ class Taplod_Templates_Helper_MakeList extends Taplod_Templates_Helper_Abstract 
 	public function MakeList(array $items,$attribs=false) {
 		
 		if ($attribs) {
-			if (($liExists = isset($attribs['li'])) || ($ulExists = isset($attribs['ul']))) {
-				if ($liExists) {
-					$tmp = array();
-					foreach ($attribs['li'] as $name => $attrib) {
-						$attribsLi[$name] = self::_getAttribs($attrib);
-					}
-				}
-				if ($ulExists) {
-					$attribs = self::_getAttribs($attribs['ul']);
-				}
+			if (($liExists = isset($attribs['li']))) {
+				$liAttribs = $attribs['li'];
+			}
+			if (isset($attribs['ul'])) {
+				$attribs = $attribs = self::_getAttribs($attribs['ul']);
 			} else {
-				$attribs = self::_getAttribs($attribs);
+				$attribs = '';
+			}
+			
+			if ($liExists) {
+				$tmp = array();
+				foreach ($liAttribs as $name => $attrib) {
+					$attribsLi[$name] = self::_getAttribs($attrib);
+				}
 			}
 		} else {
 			$attribs = '';
