@@ -42,17 +42,12 @@ class Taplod_Templates_Helper_MakeList extends Taplod_Templates_Helper_Abstract 
 	}
 	
 	private function _getAttribs($data) {
-		$attribs = ' ';
+		$attribs = '';
 		foreach ($data as $name => $attrib) {
-			switch ($name) {
-				case 'id':
-					$attribs.= 'id="'.$attrib.'"';
-					break;
-				case 'class':
-					$attribs.= 'class="'.$attrib.'"';
-					break;
-				case 'name':
-					break;
+			if (strpos($attrib,'"')) {
+				$attribs.=" $name='$attrib'";
+			} else {
+				$attribs.=' ' . $name . '="'.$attrib.'"';
 			}
 		}
 		return $attribs;
