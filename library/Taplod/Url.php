@@ -247,6 +247,16 @@ class Taplod_Url {
 	public function getCurrentCategories() {
 		return $this->_categories;
 	}
+	
+	public function isCurrentPage($page,$category=false) {
+		$category = (array) $category;
+		$diff = array_diff($category, self::getCurrentCategories());
+		if ($page == self::getCurrentPage() && ( $category && empty($diff) )) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 
 	/**
 	 * Renvoie l'utilisateur sur une autre page.
