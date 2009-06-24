@@ -21,6 +21,14 @@ require_once 'Taplod/Templates/Helper/Abstract.php';
  */
 class Taplod_Templates_Helper_MakeList extends Taplod_Templates_Helper_Abstract {
 	
+	/**
+	 * Génère une liste html.
+	 * Si $items est un tableau multidimentionnel, la liste sera imbriquée
+	 *
+	 * @param array $items
+	 * @param array $attribs
+	 * @return string
+	 */
 	public function MakeList(array $items,$attribs=false) {
 		$list = '';
 		foreach ($items as $item) {
@@ -41,6 +49,11 @@ class Taplod_Templates_Helper_MakeList extends Taplod_Templates_Helper_Abstract 
 		
 	}
 	
+	/**
+	 * Génère des attributs html en se basant sur un tableau
+	 * @param array $data
+	 * @return string
+	 */
 	private function _getAttribs($data) {
 		$attribs = '';
 		foreach ($data as $name => $attrib) {
