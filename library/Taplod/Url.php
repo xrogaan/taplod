@@ -19,6 +19,7 @@ class Taplod_Url {
 	protected $_uri = '';
 	protected $_page;
 	protected $_category = false;
+	protected $_categories = array();
 	protected $_arguments = array();
 	protected $_applicationPath = '';
 
@@ -106,7 +107,7 @@ class Taplod_Url {
 		$_count   = count($_uri_data);
 		$_pagepos = 0;
 		if ($_count > 1) {
-			for($i=0; $i<$_count ;$i++) {
+			for($i=0; $i<$_count; $i++) {
 				$_data = array_pop($_uri_data);
 				if (strpos($_data,':') !== false) {
 					$this->_arguments = explode('-',$_data) ;
@@ -119,13 +120,17 @@ class Taplod_Url {
 						}
 						$this->_page = '/' . $_data;
 					} else {
-						$this->_category = '/' . $_data . $this->_category;
+						$categories[] = $_data;
+						//$this->_category = '/' . $_data . $this->_category;
 					}
 				}
 			}
+			$this->_categories = array_reverse($categories);
 		} else {
 			$this->_page = '/' . $uri;
 		}
+		
+		
 
 		if (is_array($this->_arguments) && !empty($this->_arguments)) {
 			foreach ($this->_arguments as $action) {
@@ -185,7 +190,7 @@ class Taplod_Url {
 		if ($category) {
 			return file_exists($this->_applicationPath . $category . $page . '.php');
 		} else {
-			return file_exists($this->_applicationPath . '/' . $page . '.php');
+			return file_exists($this->_applicationPath . $page . '.php');
 		}
 	}
 
@@ -197,11 +202,11 @@ class Taplod_Url {
 	 */
 	public function getPagePath() {
 		if (!$this->_currentPageExists()) {
-			throw new Taplod_Url_Exception('This page (' . $this->_applicationPath . $this->_category . '/' . $this->_page . ') doesn\'t exists.');
+			throw new Taplod_Url_Exception('This page (' . $this->_applicationPath . $this->_category . $this->_page . ') doesn\'t exists.');
 		}
 
 		if ($this->_category) {
-			return $this->_applicationPath . $this->_category . '/' . $this->_page;
+			return $this->_applicationPath . $this->_category . $this->_page;
 		} else {
 			return $this->_applicationPath . $this->_page;
 		}
@@ -214,15 +219,33 @@ class Taplod_Url {
 	 * @return string|boolean
 	 */
 	public function getCategoryPath() {
-		if (!$this->_category) {
-			return false;
+		if (empty($this->_categories)) {
+			return '';
 		}
+		
+		$this->_category = '/' . implode('/',$this->_categories);
 		
 		if (!file_exists($this->_applicationPath . $this->_category . '/')) {
 			throw new Taplod_Url_Exception('<em>' . $this->_category . "/</em> can't be found in the application path.");
 		}
 		
 		return $this->_applicationPath . $this->_category . '/';
+	}
+	
+	/**
+	 * Retourne le nom de page courrant.
+	 * @return string
+	 */
+	public function getCurrentPage() {
+		return substr($this->_page,1);
+	}
+	
+	/**
+	 * retourne le tableau contenant la liste des dossiers jusqu'a la page demandée
+	 * @return array
+	 */
+	public function getCurrentCategories() {
+		return $this->_categories;
 	}
 
 	/**
