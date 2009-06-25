@@ -338,12 +338,8 @@ class Taplod_Url {
 			}
 		}
 
-		if (!is_bool($category) && !is_array($category)) {
-			$category = array($category);
-		}
-
 		if (!is_bool($category)) {
-			$category = implode('/',$category) . '/';
+			$category = implode('/',(array) $category) . '/';
 		} else {
 			$category = '';
 		}
