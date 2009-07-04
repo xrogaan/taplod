@@ -340,6 +340,23 @@ abstract class Taplod_Db_Adapter_Abstract {
 			return false;
 		}
 	}
+
+        public function delete($table,$where) {
+            if (!is_string($where) && !is_array($where)) {
+                require_once 'Taplod/Db/Adapter/Exception.php';
+                throw new Taplod_Db_Adapter_Exception('Argument 2 passed to ' . __CLASS__ . '::' . __FUNCTION__ . ' must be a string, ' . gettype($where) . ' given.');
+            }
+
+            if (is_array($where)) {
+                $where = self::where($where);
+            }
+
+            if (empty($where)) {
+                return false;
+            }
+
+            return self::exec('DELETE FROM ' . $table . ' ' . $where);
+        }
 	
 	/**
 	 * Construit un morceau de requête sql.
