@@ -321,7 +321,7 @@ abstract class Taplod_Db_Adapter_Abstract {
 	}
 	
 	/**
-	 * Build and exec a update query
+	 * Build and exec an update query
 	 */
 	public function update($table,array $data,$where) {
 		if (!is_string($where)) {
@@ -341,6 +341,17 @@ abstract class Taplod_Db_Adapter_Abstract {
 		}
 	}
 
+        /**
+         * Supprime des entrées dans la base de donnée selon le paramètre $where.
+         *
+         * Si where est vie, retourne false. Sinon, retourne le nombre de colone
+         * affectée. Cela peut-être 0, il faut donc faire attention a bien
+         * vérifier le type retourné lors de l'exécution.
+         *
+         * @param string $table
+         * @param array|string $where
+         * @return boolean|integer
+         */
         public function delete($table,$where) {
             if (!is_string($where) && !is_array($where)) {
                 require_once 'Taplod/Db/Adapter/Exception.php';
