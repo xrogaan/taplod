@@ -187,6 +187,13 @@ abstract class Taplod_Db_Adapter_Abstract {
         return $query->fetch($this->_fetchMode);
     }
 
+    public function fetchOne() {
+        $args = func_get_args();
+
+        $query = call_user_func_array(array('self', 'query'), $args);
+        return array_shift($query->fetch($this->_fetchMode));
+    }
+
     /**
      * Exécute la requête et renvoie tous ses résultats dans un tableau de tableaux, groupés par la colonne $key
      *
