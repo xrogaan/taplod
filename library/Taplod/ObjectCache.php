@@ -5,14 +5,14 @@
  * @copyright Copyright (c) 2009, Bellière Ludovic
  * @license http://opensource.org/licenses/mit-license.php MIT license
  */
-
+die ('test 1');
 /**
  * @category Taplod
  * @package Taplod_ObjectCache
  * @copyright Copyright (c) 2009, Bellière Ludovic
  * @license http://opensource.org/licenses/mit-license.php MIT license
  */
-class Taplod_ObjectCache extends SplDoublyLinkedList {
+class Taplod_ObjectCache extends CachingIterator {
     private static $_instance = null;
 
     private function __construct() {
