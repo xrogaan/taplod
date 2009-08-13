@@ -12,19 +12,17 @@
  * @copyright Copyright (c) 2009, Bellière Ludovic
  * @license http://opensource.org/licenses/mit-license.php MIT license
  */
-class Taplod_ObjectCache {
+class Taplod_ObjectCache extends SplDoublyLinkedList {
     private static $_instance = null;
-    private $_objects;
 
     private function __construct() {
-		$this->_objects = array();
     }
 
     public function getInstance() {
         if (self::$_instance == null) {
             self::$_instance = new self();
         }
-		return self::$_instance;
+        return self::$_instance;
     }
 
     /**
@@ -35,8 +33,8 @@ class Taplod_ObjectCache {
      */
     public static function set($tag,&$classRef) {
         $cache = self::getInstance();
-        if (!array_key_exists($tag,$cache->_objects)) {
-            $cache->_objects[$tag] = &$classRef;
+        if (!$cache->offsetExists($tag)) {
+            $cache->offsetSet($tag,&$classRef);
             return true;
         }
         return false;
@@ -49,44 +47,44 @@ class Taplod_ObjectCache {
      */
     public static function get($tag) {
         $cache = self::getInstance();
-        if (!array_key_exists($tag,$cache->_objects)) {
+        if ($cache->offsetExists($tag)) {
+            return $cache->offsetGet($tag);
+        } else {
             require_once 'Taplod/Exception.php';
-			throw new Taplod_Exception('No entry registered for '. $tag);
+            throw new Taplod_Exception('No entry registered for '. $tag);
         }
-        return $cache->_objects[$tag];
     }
-	
+
     /**
      * Vérifie si l'entrée $tag existe dans le registre.
      * @param $tag
      * @return boolean
      */
-	public static function isCached($tag) {
-		$cache = self::getInstance();
-		return array_key_exists($cache->_objects,$tag);
-	}
+    public static function isCached($tag) {
+        $cache = self::getInstance();
+        return $cache->offsetExists($tag);
+    }
 
     public function __get($tag) {
-		$cache = self::getInstance();
+        $cache = self::getInstance();
         return $cache->get($tag);
     }
 
     public function __set($tag,$value) {
-		$cache = self::getInstance();
+        $cache = self::getInstance();
         return $cache->set($tag,$value);
     }
-	
-	public function __unset($tag) {
-		$cache = self::getInstance();
-		if (array_key_exists($tag,$cache->_objects)) {
-			unset($cache->_objects[$tag]);
-		}
-	}
-	
-    public function __isset($tag) {
-        if (self::$_instance == null) {
-            return false;
+
+    public function __unset($tag) {
+        $cache = self::getInstance();
+        if ($cache->offsetExists($tag)) {
+            $cache->offsetUnset($tag);
+            return true;
         }
-        return array_key_exists($tag,self::$_instance->_objects);
+        return false;
+    }
+
+    public function __isset($tag) {
+        throw exception('__isset is deprecated. Use isCached or offsetExists instead.');
     }
 }
