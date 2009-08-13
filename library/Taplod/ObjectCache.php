@@ -5,20 +5,17 @@
  * @copyright Copyright (c) 2009, Bellière Ludovic
  * @license http://opensource.org/licenses/mit-license.php MIT license
  */
-die ('test 1');
+
 /**
  * @category Taplod
  * @package Taplod_ObjectCache
  * @copyright Copyright (c) 2009, Bellière Ludovic
  * @license http://opensource.org/licenses/mit-license.php MIT license
  */
-class Taplod_ObjectCache extends CachingIterator {
+class Taplod_ObjectCache extends ArrayObject {
     private static $_instance = null;
 
-    private function __construct() {
-    }
-
-    public function getInstance() {
+    public static function getInstance() {
         if (self::$_instance == null) {
             self::$_instance = new self();
         }
@@ -33,6 +30,7 @@ class Taplod_ObjectCache extends CachingIterator {
      */
     public static function set($tag,&$classRef) {
         $cache = self::getInstance();
+
         if (!$cache->offsetExists($tag)) {
             $cache->offsetSet($tag,&$classRef);
             return true;
