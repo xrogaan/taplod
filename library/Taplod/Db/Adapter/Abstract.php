@@ -350,7 +350,7 @@ abstract class Taplod_Db_Adapter_Abstract {
             $set[] = $key . '=' . self::_autoQuote($value);
         }
         if ($set) {
-            return self::exec('UPDATE ' . $table . ' SET ' . implode(',', $set) . $where );
+            return self::exec('UPDATE ' . $table . ' SET ' . implode(',', $set) . ' ' . $where );
         } else {
             return false;
         }
