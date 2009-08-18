@@ -187,6 +187,10 @@ abstract class Taplod_Db_Adapter_Abstract {
         return $query->fetch($this->_fetchMode);
     }
 
+    /**
+     * Exécute la requête et renvoie la première ligne du résultat.
+     * @return array
+     */
     public function fetchOne() {
         $args = func_get_args();
 
@@ -329,6 +333,10 @@ abstract class Taplod_Db_Adapter_Abstract {
 
     /**
      * Build and exec a update query
+     *
+     * @param string $table
+     * @param array $data
+     * @param string $where
      */
     public function update($table,array $data,$where) {
         if (!is_string($where)) {
