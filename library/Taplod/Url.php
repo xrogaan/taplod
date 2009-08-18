@@ -64,6 +64,11 @@ class Taplod_Url {
 			$this->_setBaseUri($config['baseuri']);
 		}
 
+		if (session_id() == '') {
+			session_name('taplod_default');
+			session_start();
+		}
+
 		if (isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST'] != str_replace(array('http://','/'),'',$this->_baseUrl)) {
 			self::redirect(false);
 		}
@@ -121,11 +126,11 @@ class Taplod_Url {
 						$this->_page = '/' . $_data;
 					} else {
 						$categories[] = $_data;
-						//$this->_category = '/' . $_data . $this->_category;
 					}
 				}
 			}
 			$this->_categories = array_reverse($categories);
+                        unset($categories, $_data, $_count, $_uri_data, $_pagepos);
 		} else {
 			$this->_page = '/' . $uri;
 		}
@@ -303,10 +308,6 @@ class Taplod_Url {
 	 * @return void
 	 */
 	public function addMessageInSession($message='') {
-		if (session_id() == '') {
-			session_name('taplod_default');
-			session_start();
-		}
 		$_SESSION['session_messages'][] = $message;
 	}
 
