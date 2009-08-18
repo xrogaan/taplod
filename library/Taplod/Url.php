@@ -330,7 +330,7 @@ class Taplod_Url {
 		if ($arguments !== false) {
 			if (!is_array($arguments)) {
 				require_once 'Taplod/Url/Exception.php';
-				throw new Taplod_Url_Exception ('Argument 2 passed to ' . __CLASS__ . '::' . __FUNCTION__ . ' must be a string, ' . gettype($arguments) . ' given.');
+				throw new Taplod_Url_Exception ('Argument 2 passed to ' . __CLASS__ . '::' . __FUNCTION__ . ' must be an array, ' . gettype($arguments) . ' given.');
 			}
 
 			$params = array();
