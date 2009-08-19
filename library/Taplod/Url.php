@@ -311,6 +311,10 @@ class Taplod_Url {
 		$_SESSION['session_messages'][] = $message;
 	}
 
+        public function isMessageInSession() {
+            return empty($_SESSION['session_messages']);
+        }
+
 	/**
 	 * Construit une url selon les arguments passé a la fonction
 	 *
