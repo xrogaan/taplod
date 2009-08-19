@@ -463,6 +463,10 @@ abstract class Taplod_Db_Adapter_Abstract {
 
     public function __call($name,$args) {
         $t = microtime(true);
+        if (!method_exists($this,$name)) {
+             require_once 'Taplod/Db/Adapter/Exception.php';
+             throw new Taplod_Db_Adapter_Exception('First argument is expected to be a valid callback, \'' . __CLASS__ . '::' . $name . '\' was given but doesn\'t exists.');
+        }
         $r = call_user_func_array(array($this->_connection,$name),$args);
 
 		/*$this->_mark_query_time = microtime(true);
