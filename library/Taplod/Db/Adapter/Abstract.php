@@ -188,7 +188,7 @@ abstract class Taplod_Db_Adapter_Abstract {
     }
 
     /**
-     * Exécute la requête et renvoie la première ligne du résultat.
+     * Exécute la requête et renvoie la première colone du résultat.
      * @return array
      */
     public function fetchOne() {
@@ -255,10 +255,10 @@ abstract class Taplod_Db_Adapter_Abstract {
     }
 
     /**
-     * Exécute la requête et renvoie tous ses résultats dans un tableau indexé sur le champ $key
+     * Exécute la requête et renvoie tous ses résultats dans un tableau indexé sur les champ $key1 et $key2
      *
-     * exemple : $r = $obj->fetchAllAsDict( 'id', "SELECT * FROM users" )
-     * $r[1] = user d'ID 1
+     * exemple : $r = $obj->fetchAllAsDict( 'name', 'firstname', "SELECT * FROM users" )
+     * $r['grave']['jean']
      * @return array
      */
     public function fetchAllAsDict2() {
