@@ -34,6 +34,12 @@ abstract class Taplod_Db_Adapter_Abstract {
             throw new Taplod_Db_Adapter_Exception('Argument 1 passed to ' . __CLASS__ . '::' . __FUNCTION__ . ' must be an array, ' . gettype($config) . ' given.');
         }
 
+        $this->_checkRequiredConfigOptions($config);
+
+        $this->_config = array_merge($this->_config, $config);
+    }
+
+    protected function _checkRequiredConfigOptions(array $config) {
         if (!array_key_exists('dbname', $config)) {
             require_once 'Taplod/Db/Adapter/Exception.php';
             throw new Taplod_Db_Adapter_Exception("Configuration array must have a 'dbname' key.");
@@ -53,7 +59,7 @@ abstract class Taplod_Db_Adapter_Abstract {
             $config['host'] = 'localhost';
         }
 
-        $this->_config = array_merge($this->_config, $config);
+        return true;
     }
 
 
@@ -430,6 +436,28 @@ abstract class Taplod_Db_Adapter_Abstract {
     public function getConnection() {
         $this->_connect();
         return $this->_connection;
+    }
+
+    /**
+     * Set the PDO fetch mode
+     *
+     * @param int $mode A PDO fetch mode
+     */
+    public function setFetchMode ($mode) {
+        switch ($mode) {
+            case PDO::FETCH_ASSOC:
+            case PDO::FETCH_BOTH:
+            case PDO::FETCH_NUM:
+            case PDO::FETCH_BOUND:
+            case PDO::FETCH_LAZY:
+            case PDO::FETCH_NAMED:
+            case PDO::FETCH_OBJ:
+                $this->_fetchMode = $mode;
+                break;
+            default:
+                require_once 'Taplod/Db/Adapter/Exception.php';
+                throw new Taplod_Db_Adapter_Exception('Invalid fetch mode \''.$mode.'\' specified');
+        }
     }
 
     /**
