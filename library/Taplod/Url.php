@@ -245,6 +245,10 @@ class Taplod_Url {
 		return substr($this->_page,1);
 	}
 	
+	public function getCurrentUri() {
+		return  $this->getBaseUri() . implode('/',$this->_categories) . '/' . self::getCurrentPage();
+	}
+	
 	/**
 	 * retourne le tableau contenant la liste des dossiers jusqu'a la page demandée
 	 * @return array
@@ -311,9 +315,9 @@ class Taplod_Url {
 		$_SESSION['session_messages'][] = $message;
 	}
 
-        public function isMessageInSession() {
-            return empty($_SESSION['session_messages']);
-        }
+	public function isMessageInSession() {
+		return empty($_SESSION['session_messages']);
+	}
 
 	/**
 	 * Construit une url selon les arguments passé a la fonction
