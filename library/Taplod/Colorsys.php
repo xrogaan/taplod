@@ -80,18 +80,20 @@ class Taplod_Colorsys {
 				}
 				$type = self::RGB;
 				$color = self::rgb2hex($rgb);
-				$color = implode('',$color);
 			} else {
 				$type = self::HEX;
-				$color = $hex;
+				$color = array(
+					'r' => substr($hex,0,2),
+					'g' => substr($hex,2,2),
+					'b' => substr($hex,-2),
 			}
 		}
 		
 		$color = str_replace('#','',$color);
 
-		$r = str_pad(dechex(255 - hexdec(substr($color,0,2))),2,0);
-		$g = str_pad(dechex(255 - hexdec(substr($color,2,2))),2,0);
-		$b = str_pad(dechex(255 - hexdec(substr($color,-2))),2,0);
+		$r = str_pad(dechex(255 - hexdec($color['r'])),2,0);
+		$g = str_pad(dechex(255 - hexdec($color['g'])),2,0);
+		$b = str_pad(dechex(255 - hexdec($color['b'])),2,0);
 
 		return "#$r$g$b";
 	}
