@@ -32,17 +32,9 @@ class Taplod_Colorsys {
 		$this->_color[$this->_type] = $color;
 		$this->_color = array(
 			self::RGB => self::hex2rgb(),
+			self::HEX => self::rgb2hex(),
 		);
-		
-		} else {
-			
 
-			$this->_current_color = $color;
-			$this->_color = array(
-				self::RGB => $color,
-				self::HEX => self::rgb2hex()
-			);
-		}
 	}
 
 	function getRgb() {
@@ -112,7 +104,7 @@ class Taplod_Colorsys {
 			if ($this->_type == self::RGB)
 				$rgb = $this->_current_color;
 			else
-				return $this->current_color;
+				return $this->_current_color;
 		} else {
 			if (!is_array($rgb)) {
 				throw new exception('Invalid type given for RGB. An array is expected, '.gettype($rgb).' given.');
