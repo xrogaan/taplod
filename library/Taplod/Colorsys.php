@@ -24,49 +24,89 @@ class Taplod_Colorsys {
 				$color = self::random('hex');
 			$color = str_replace('#','',$color);
 			$this->_type = self::HEX;
-			$this->_current_color = $color;
-			$this->_color = array(
-				self::RGB => self::hex2rgb(),
-				self::HEX => $color
-			);
 		} else {
 			$this->_type = self::RGB;
+		}
+		
+		$this->_current_color = $color;
+		$this->_color[$this->_type] = $color;
+		$this->_color = array(
+			self::RGB => self::hex2rgb(),
+		);
+		
+		} else {
+			
 
 			$this->_current_color = $color;
 			$this->_color = array(
 				self::RGB => $color,
-				self::HEX => $color
+				self::HEX => self::rgb2hex()
 			);
 		}
 	}
 
 	function getRgb() {
-		return $this->_color[self::RGB];
-	}
-
-	function getHex() {
-		return $this->_color[self::HEX];
-	}
-
-	function revert($hex=false) {
-		if (!$hex) {
-			if ($this->_type == self::HEX)
-				$hex = $this->_current_color;
-			else
-				return $this->_current_color;
+		if (isset($this->_color[self::RGB])) {
+			return $this->_color[self::RGB];
+		} elseif ($this->_type == self::HEX) {
+			$this->_color[self::RGB] = self::hex2rgb($this->_current_color);
+			return $this->_color[self::RGB];
 		} else {
-			if ($hex[0] == "#") {
-				$hex = substr($hex,1);
+			return $this->_current_color;
+		}
+	}
+	
+	function getHex() {
+		if (isset($this->_color[self::HEX]) {
+			return $this->_color[self::HEX];
+		} elseif ($this->_type == self::RGB) {
+			$this->_color[self::HEX] = self::rgb2hex($this->_current_color);
+			return $this->_color[self::HEX];
+		} else {
+			return $this->_current_color;
+		}
+	}
+
+	/**
+	 * Retourne la valeur inversée d'une couleur.
+	 */
+	function revert($hex=false,$rgb=false) {
+		if (!$hex && !$rgb) {
+			$type = $this->_type;
+			switch ($type) {
+				case self::HEX:
+					return self::getRgb();
+					break;
+				case self::RGB:
+					return self::getHex();
+					break;
+			}
+		} else {
+			if (!$hex) {
+				if (!is_array($rgb)) {
+					throw new exception('Invalid type given for RGB. An array is expected, '.gettype($rgb).' given.');
+				}
+				$type = self::RGB;
+				$color = self::rgb2hex($rgb);
+				$color = implode('',$color);
+			} else {
+				$type = self::HEX;
+				$color = $hex;
 			}
 		}
+		
+		$color = str_replace('#','',$color);
 
-		$r = str_pad(dechex(255 - hexdec(substr($hex,0,2))),2,0);
-		$g = str_pad(dechex(255 - hexdec(substr($hex,2,2))),2,0);
-		$b = str_pad(dechex(255 - hexdec(substr($hex,-2))),2,0);
+		$r = str_pad(dechex(255 - hexdec(substr($color,0,2))),2,0);
+		$g = str_pad(dechex(255 - hexdec(substr($color,2,2))),2,0);
+		$b = str_pad(dechex(255 - hexdec(substr($color,-2))),2,0);
 
 		return "#$r$g$b";
 	}
 
+	/**
+	 * Transforme une couleur RGB en son homologue HTML
+	 */
 	function rgb2hex($rgb=false) {
 		if (!$rgb) {
 			if ($this->_type == self::RGB)
@@ -85,7 +125,10 @@ class Taplod_Colorsys {
 
 		return compact('r','g','b');
 	}
-
+	
+	/**
+	 * Transforme une couleur html en son homologue RGB
+	 */
 	function hex2rgb($hex=false) {
 		if (!$hex) {
 			if ($this->_type == self::HEX)
@@ -100,7 +143,10 @@ class Taplod_Colorsys {
 
 		return compact('r', 'g', 'b');
 	}
-
+	
+	/**
+	 * Transforme une couleur RGB en son homologue HSV
+	 */
 	static function rgb2hsv($r, $g=0, $b=0) {
 		if (is_array($r) && count($r)==3) {
 			$b = $r['b'];
