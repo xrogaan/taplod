@@ -49,7 +49,7 @@ class Taplod_Colorsys {
 	}
 	
 	function getHex() {
-		if (isset($this->_color[self::HEX]) {
+		if (isset($this->_color[self::HEX])) {
 			return $this->_color[self::HEX];
 		} elseif ($this->_type == self::RGB) {
 			$this->_color[self::HEX] = self::rgb2hex($this->_current_color);
