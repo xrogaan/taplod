@@ -98,6 +98,8 @@ class Taplod_Colorsys {
 
 	/**
 	 * Transforme une couleur RGB en son homologue HTML
+	 *
+	 * @param $rgb Must be an array indexed on r, g and b.
 	 */
 	function rgb2hex($rgb=false) {
 		if (!$rgb) {
@@ -111,9 +113,9 @@ class Taplod_Colorsys {
 			}
 		}
 
-		$r = dechex(substr($rgb,0,3));
-		$g = dechex(substr($rgb,0,3));
-		$b = dechex(substr($rgb,-3));
+		$r = dechex($rgb['r']);
+		$g = dechex($rgb['g']);
+		$b = dechex($rgb['b']);
 
 		return compact('r','g','b');
 	}
