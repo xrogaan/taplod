@@ -48,9 +48,16 @@ class Taplod_Loader {
 		foreach ($path as $dir) {
 			$file = $dir.DIRECTORY_SEPARATOR.$filename;
 			if (file_exists($file)) {
-				include_once $file;
+                                try {
+                                    include_once $file;
+                                } catch (exception $e) {
+                                    echo "error";
+                                    die($e->getMessage());
+                                }
 				return;
-			}
+			} else {
+                            echo "$file doesn't exists.";
+                        }
 		}
 
 		require_once 'Taplod/Exception.php';
