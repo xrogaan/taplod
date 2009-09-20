@@ -202,8 +202,8 @@ class Taplod_Colorsys {
 		} else {
 			return array(
 				'r' => substr($color,0,2),
-				'b' => substr($color,2,2),
-				'r' => substr($color,-2));
+				'g' => substr($color,2,2),
+				'b' => substr($color,-2));
 		}
 	}
 }
