@@ -86,6 +86,7 @@ class Taplod_Colorsys {
 					'r' => substr($hex,0,2),
 					'g' => substr($hex,2,2),
 					'b' => substr($hex,-2),
+				);
 			}
 		}
 		
