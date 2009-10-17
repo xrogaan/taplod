@@ -33,7 +33,7 @@ class Taplod_Db_Adapter_Pdo_Mysql extends Taplod_Db_Adapter_Abstract {
 			$this->_connection = new PDO($dsn, $this->_config['username'], $this->_config['password']);
 			$this->_connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 		} catch (PDOException $e) {
-			require_once 'Taplod_Db_Adapter_Exception.php';
+			require_once 'Taplod/Db/Adapter/Exception.php';
 			throw new Taplod_Db_Adapter_Exception($e->getMessage());
 		}
 	}
