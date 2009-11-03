@@ -25,7 +25,7 @@ class Taplod_Templates {
 	protected $_options = array();
 
 	private $_escape = array('htmlentities');
-	private $_data = array();
+	private $_persistentVars = array();
 
 	protected $_helpers = array();
 	private $_helperLoaded = array();
@@ -194,11 +194,16 @@ class Taplod_Templates {
 	public function clearVars () {
 		$vars = get_object_vars($this);
 		foreach ($vars as $key => $value) {
-			if (substr($key, 0, 1) != '_') {
+			if (substr($key, 0, 1) != '_' && !in_array($key,$this->_persistentVars)) {
 				unset($this->$key);
 			}
 		}
 	}
+
+	public function setGlobal($name,$data) {
+		self::__set($name,$data);
+                $this->_persistentVars[] = $name;
+        }
 
 	public function __set($name,$data) {
 		if ('_' != substr($name, 0, 1)) {
