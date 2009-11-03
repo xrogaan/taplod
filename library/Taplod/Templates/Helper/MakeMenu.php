@@ -26,6 +26,20 @@ class Taplod_Templates_Helper_MakeMenu extends Taplod_Templates_Helper_MakeList 
 			} else {
 				$attribs = '';
 			}
+
+                        if (!isset($pageDetails['url']['category'])) {
+                            $pageDetails['url']['category'] = '';
+                        }
+
+
+                        if (!isset($pageDetails['displayName'])) {
+                            if (Taplod_ObjectCache::isCached('PAGES')) {
+                                $pageDetails['displayName'] = Taplod_ObjectCache::get('PAGES')->getLabelFor($pageName);
+                            } else {
+                                $pageDetails['displayName'] = $pageName;
+                            }
+                        }
+
 			if (Taplod_ObjectCache::get('URL')->isCurrentPage($pageName, $pageDetails['url']['category'])) {
 				$attribs.= ' class="active"';
 			}
