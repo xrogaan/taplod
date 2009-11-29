@@ -86,7 +86,7 @@ class Taplod_Config implements Countable, Iterator {
 		}
 	}
 	
-	protected function __isset($name) {
+	public function __isset($name) {
 		return isset($this->_data[$name]);
 	}
 
@@ -95,7 +95,7 @@ class Taplod_Config implements Countable, Iterator {
 	 *
 	 * @param string $name
 	 */
-	protected function __unset($name) {
+	public function __unset($name) {
 		if ($this->_allow_modifications) {
 			unset($this->_data[$name]);
 			$this->_count = count($this->_data);

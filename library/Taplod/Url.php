@@ -212,6 +212,7 @@ class Taplod_Url {
      */
     public function getPagePath() {
         if (!$this->_currentPageExists()) {
+        	require_once 'Url/Exception.php';
             throw new Taplod_Url_Exception('This page (' . $this->_applicationPath . $this->_category . $this->_page . ') doesn\'t exists.');
         }
 
@@ -236,6 +237,7 @@ class Taplod_Url {
         $this->_category = '/' . implode('/',$this->_categories);
 
         if (!file_exists($this->_applicationPath . $this->_category . '/')) {
+        	require_once 'Url/Exception.php';
             throw new Taplod_Url_Exception('<em>' . $this->_category . "/</em> can't be found in the application path.");
         }
 
