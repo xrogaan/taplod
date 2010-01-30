@@ -27,25 +27,26 @@ class Taplod_Templates_Helper_MakeMenu extends Taplod_Templates_Helper_MakeList 
 				$attribs = '';
 			}
 
-                        if (!isset($pageDetails['url']['category'])) {
-                            $pageDetails['url']['category'] = '';
-                        }
+            if (!isset($pageDetails['url']['category'])) {
+                $pageDetails['url']['category'] = false;
+            } else {
+                $pageDetails['url']['category'] = (array) $pageDetails['url']['category'];
+            }
 
 
-                        if (!isset($pageDetails['displayName'])) {
-                            if (Taplod_ObjectCache::isCached('PAGES')) {
-                                $pageDetails['displayName'] = Taplod_ObjectCache::get('PAGES')->getLabelFor($pageName);
-                            } else {
-                                $pageDetails['displayName'] = $pageName;
-                            }
-                        }
+            if (!isset($pageDetails['displayName'])) {
+                if (Taplod_ObjectCache::isCached('PAGES')) {
+                    $pageDetails['displayName'] = Taplod_ObjectCache::get('PAGES')->getLabelFor($pageName);
+                } else {
+                    $pageDetails['displayName'] = $pageName;
+                }
+            }
 
 			if (Taplod_ObjectCache::get('URL')->isCurrentPage($pageName, $pageDetails['url']['category'])) {
 				$attribs.= ' class="active"';
 			}
 			
 			$args = isset($pageDetails['url']['arguments']) ? $pageDetails['url']['arguments'] : false;
-			$pageDetails['url']['category'] = (array) $pageDetails['url']['category'];
 			
 			$url = Taplod_ObjectCache::get('URL')->buildUri($pageName, $args, $pageDetails['url']['category']);
 			$list.= '<li' . $attribs . '><a href="' . $url . '">' . $pageDetails['displayName'] . '</a></li>' . "\n";
